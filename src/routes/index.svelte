@@ -1,15 +1,13 @@
 <script>
 
-	const Dir = Object.freeze({
-		E: [1,0],
-		W: [-1,0],
-		N: [0,-1],
-		S: [0,1]
-	});
+	const Dir = Object.freeze({E: [1,0,2,1], W: [-1,0,-2,1], N: [0,-1,0,0.5], S: [0,1,0,2]});
 
-	let path = [Dir.E, Dir.E, Dir.S, Dir.W, Dir.S, Dir.E];
+	let path = [Dir.E, Dir.E];
+
+	let tax = 0.0;
 
 	function segmentsFrom(path) {
+		tax = 0.0;
 		let s = [];
 		let x = 0;
 		let y = 0;
@@ -17,32 +15,55 @@
 			s.push({fromX: x, fromY: y, toX: x + path[i][0], toY: y + path[i][1]});
 			x += path[i][0];
 			y += path[i][1];
+			tax += path[i][2];
+			tax *= path[i][3];
 		}
 		return s
 	}
 
-	let segments = [];
+	$: segments = segmentsFrom(path);
 
-	segments = segmentsFrom(path);
+	function handleKeydown(event) {
+		switch (event.key) {
+			case "ArrowRight":
+				path = [...path, Dir.E];
+				break;
+			case "ArrowLeft":
+				path = [...path, Dir.W];
+				break;
+			case "ArrowUp":
+				path = [...path, Dir.N];
+				break;
+			case "ArrowDown":
+				path = [...path, Dir.S];
+				break;
+			default:
+				break;
+		}
+		keyCode = event.keyCode;
+	}
 
 </script>
+
+<svelte:window on:keydown={handleKeydown}/>
 
 <svelte:head>
 	<title>The Penniless Pilgrim Riddle</title>
 </svelte:head>
 
 <h1>The Penniless Pilgrim Riddle</h1>
+<h4>Tax: {tax} silver.</h4>
 
 <div class="svginside" style="max-width:480px">
-	<canvas width="430" height="260"></canvas>
-	<svg height="100%" width="100%" viewBox="0 0 430 260">
+	<canvas width="420" height="420"></canvas>
+	<svg height="100%" width="100%" viewBox="0 0 420 420">
         {#each segments as s}
 			<line
 				x1="{10 + s.fromX*100}"
 				y1="{10 + s.fromY*100}"
 				x2="{10 + s.toX*100}"
 				y2="{10 + s.toY*100}"
-				stroke="red"
+				stroke="orange"
 				stroke-width="5"
 			/>
         {/each}
@@ -70,12 +91,8 @@
 	}
 
 
-	h1, p {
-		text-align: center;
-		margin: 0 auto;
-	}
-
 	h1 {
+		text-align: center;
 		font-size: 2.8em;
 		text-transform: uppercase;
 		font-weight: 700;
