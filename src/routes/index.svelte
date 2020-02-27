@@ -1,47 +1,48 @@
 <script>
 
+	import { onMount } from 'svelte';
+
 	const Dir = Object.freeze({E: [1,0,2,1], W: [-1,0,-2,1], N: [0,-1,0,0.5], S: [0,1,0,2]});
 
-	let path = [Dir.E, Dir.E];
-
+	let x = 0;
+	let y = 0;
 	let tax = 0.0;
 
-	function segmentsFrom(path) {
-		tax = 0.0;
-		let s = [];
-		let x = 0;
-		let y = 0;
-		for (let i = 0; i < path.length; i++) {
-			s.push({fromX: x, fromY: y, toX: x + path[i][0], toY: y + path[i][1]});
-			x += path[i][0];
-			y += path[i][1];
-			tax += path[i][2];
-			tax *= path[i][3];
-		}
-		return s
+	function getSegment(x, y, dir) {
+		return {fromX: x, fromY: y, toX: x + dir[0], toY: y + dir[1]};
 	}
 
-	$: segments = segmentsFrom(path);
+	let segments = [];
+
+	function addSegment(dir) {
+		segments = [...segments, getSegment(x, y, dir)];
+		x += dir[0];
+		y += dir[1];
+		tax += dir[2];
+		tax *= dir[3];
+	}
 
 	function handleKeydown(event) {
 		switch (event.key) {
 			case "ArrowRight":
-				path = [...path, Dir.E];
+				if (x < 4) addSegment(Dir.E);
 				break;
 			case "ArrowLeft":
-				path = [...path, Dir.W];
+				if (x > 0) addSegment(Dir.W);
 				break;
 			case "ArrowUp":
-				path = [...path, Dir.N];
+				if (y > 0) addSegment(Dir.N);
 				break;
 			case "ArrowDown":
-				path = [...path, Dir.S];
-				break;
-			default:
+				if (y < 4) addSegment(Dir.S);
 				break;
 		}
-		keyCode = event.keyCode;
 	}
+
+	onMount(async () => {
+		addSegment(Dir.E);
+		addSegment(Dir.E);
+	});
 
 </script>
 
@@ -90,7 +91,6 @@
 		width: 100%;
 	}
 
-
 	h1 {
 		text-align: center;
 		font-size: 2.8em;
@@ -104,4 +104,5 @@
 			font-size: 4em;
 		}
 	}
+
 </style>
