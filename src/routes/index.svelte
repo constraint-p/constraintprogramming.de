@@ -1,6 +1,7 @@
 <script>
 
 	import { onMount } from 'svelte';
+	import { BitField } from '../util/bitfield';
 
 	const Dir = Object.freeze({
 		E: [1,0,2,1],
@@ -9,29 +10,44 @@
 		S: [0,1,0,2]
 	});
 
+	const X_SIZE = 4;
+	const Y_SIZE = 4;
+
+	const horizontalRoads = new BitField((X_SIZE + 1)*(Y_SIZE+1));
+	const verticalRoads = new BitField((X_SIZE + 1)*(Y_SIZE+1));
+
+	function idx(x, y) {
+		return y * (Y_SIZE+1) + x;
+	}
+
 	let x = 0;
 	let y = 0;
 	let tax = 0.0;
 
-	let horizontal = [];
-	let vertical = [];
+	let segments = [];
 
-	function getSegment(x, y, dir) {
+	function makeSegment(x, y, dir) {
 		return {fromX: x, fromY: y, toX: x + dir[0], toY: y + dir[1]};
 	}
 
-	let segments = [];
-
 	function addSegment(dir) {
-		let s = getSegment(x, y, dir);
-		if (s.toX > 4 || s.toX < 0 || s.toY > 4 || s.toY < 0) return;
-		segments = [...segments, s];
+		let s = makeSegment(x, y, dir);
+
+		if (s.toX > X_SIZE || s.toX < 0 || s.toY > Y_SIZE || s.toY < 0) return;
+
 		if (dir[0] !== 0) {
+			const i = idx(Math.min(x, x + dir[0]), y);
+			if (horizontalRoads.get(i)) return;
+			horizontalRoads.set(i);
 			x += dir[0];
 		}
 		if (dir[1] !== 0) {
+			const i = idx(x, Math.min(y, y + dir[1]));
+			if (verticalRoads.get(i)) return;
+			verticalRoads.set(i);
 			y += dir[1];
 		}
+		segments = [...segments, s];
 		tax += dir[2];
 		tax *= dir[3];
 	}
@@ -62,6 +78,9 @@
 		addSegment(Dir.E);
 	});
 
+	const MARGIN = 15;
+	const SEGMENT_LENGTH = 100;
+	const LENGTH = X_SIZE * SEGMENT_LENGTH + 2 * MARGIN;
 </script>
 
 <svelte:window on:keydown={handleKeydown}/>
@@ -74,20 +93,20 @@
 <h4>Tax: {tax} silver.</h4>
 
 <div class="svginside" style="max-width:480px">
-	<canvas width="420" height="420"></canvas>
-	<svg height="100%" width="100%" viewBox="0 0 420 420">
+	<canvas width="{LENGTH}" height="{LENGTH}"></canvas>
+	<svg height="100%" width="100%" viewBox="0 0 {LENGTH} {LENGTH}">
+		<circle r="15" cx="{MARGIN + X_SIZE * SEGMENT_LENGTH}" cy="{MARGIN + Y_SIZE * SEGMENT_LENGTH}" fill='gray'/>
         {#each segments as s}
 			<line
-				x1="{10 + s.fromX*100}"
-				y1="{10 + s.fromY*100}"
-				x2="{10 + s.toX*100}"
-				y2="{10 + s.toY*100}"
+				x1="{MARGIN + s.fromX*SEGMENT_LENGTH}"
+				y1="{MARGIN + s.fromY*SEGMENT_LENGTH}"
+				x2="{MARGIN + s.toX*SEGMENT_LENGTH}"
+				y2="{MARGIN + s.toY*SEGMENT_LENGTH}"
 				stroke="orange"
 				stroke-width="5"
 			/>
         {/each}
-
-		<circle r="10" cx="{10 + x*100}" cy="{10 + y*100}" fill='black'/>
+		<circle r="10" cx="{MARGIN + x*SEGMENT_LENGTH}" cy="{MARGIN + y*SEGMENT_LENGTH}" fill='black'/>
 	</svg>
 
 
