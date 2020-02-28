@@ -2,11 +2,19 @@
 
 	import { onMount } from 'svelte';
 
-	const Dir = Object.freeze({E: [1,0,2,1], W: [-1,0,-2,1], N: [0,-1,0,0.5], S: [0,1,0,2]});
+	const Dir = Object.freeze({
+		E: [1,0,2,1],
+		W: [-1,0,-2,1],
+		N: [0,-1,0,0.5],
+		S: [0,1,0,2]
+	});
 
 	let x = 0;
 	let y = 0;
 	let tax = 0.0;
+
+	let horizontal = [];
+	let vertical = [];
 
 	function getSegment(x, y, dir) {
 		return {fromX: x, fromY: y, toX: x + dir[0], toY: y + dir[1]};
@@ -15,27 +23,37 @@
 	let segments = [];
 
 	function addSegment(dir) {
-		segments = [...segments, getSegment(x, y, dir)];
-		x += dir[0];
-		y += dir[1];
+		let s = getSegment(x, y, dir);
+		if (s.toX > 4 || s.toX < 0 || s.toY > 4 || s.toY < 0) return;
+		segments = [...segments, s];
+		if (dir[0] !== 0) {
+			x += dir[0];
+		}
+		if (dir[1] !== 0) {
+			y += dir[1];
+		}
 		tax += dir[2];
 		tax *= dir[3];
 	}
 
-	function handleKeydown(event) {
+	function dirFrom(event) {
 		switch (event.key) {
 			case "ArrowRight":
-				if (x < 4) addSegment(Dir.E);
-				break;
+				return Dir.E;
 			case "ArrowLeft":
-				if (x > 0) addSegment(Dir.W);
-				break;
+				return Dir.W;
 			case "ArrowUp":
-				if (y > 0) addSegment(Dir.N);
-				break;
+				return Dir.N;
 			case "ArrowDown":
-				if (y < 4) addSegment(Dir.S);
-				break;
+				return Dir.S;
+		}
+		return undefined;
+	}
+
+	function handleKeydown(event) {
+		const dir = dirFrom(event);
+		if (dir !== undefined) {
+			addSegment(dir);
 		}
 	}
 
@@ -68,7 +86,11 @@
 				stroke-width="5"
 			/>
         {/each}
+
+		<circle r="10" cx="{10 + x*100}" cy="{10 + y*100}" fill='black'/>
 	</svg>
+
+
 </div>
 
 <style>
