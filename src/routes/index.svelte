@@ -81,12 +81,19 @@
 	const MARGIN = 15;
 	const SEGMENT_LENGTH = 100;
 	const LENGTH = X_SIZE * SEGMENT_LENGTH + 2 * MARGIN;
+
+    window.UnderpolishedChatSettings = {
+        id: 10,
+        token: 'oQXfa275QFb9dEyL'
+    };
+
 </script>
 
 <svelte:window on:keydown={handleKeydown}/>
 
 <svelte:head>
 	<title>The Penniless Pilgrim Riddle</title>
+    <script src="https://api.underpolished.com/js/chatwidget.js" async type="text/javascript"></script>
 </svelte:head>
 
 <h1>The Penniless Pilgrim Riddle</h1>
