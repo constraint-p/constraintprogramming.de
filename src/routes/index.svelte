@@ -90,7 +90,21 @@
 </svelte:head>
 
 <h1>The Penniless Pilgrim Riddle</h1>
-<h4>Tax: {tax} silver.</h4>
+
+<div class="auto-resizable-iframe">
+	<div>
+		<iframe
+			title="Penniless Pilgrim Riddle"
+			frameborder="0"
+			src="https://www.youtube-nocookie.com/embed/6sBB-gRhfjE"
+			allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+			allowfullscreen
+		/>
+	</div>
+</div>
+
+<p>Use the arrow keys to solve the riddle.</p>
+<p>Tax: {tax} silver.</p>
 
 <div class="svginside" style="max-width:480px">
 	<canvas width="{LENGTH}" height="{LENGTH}"></canvas>
@@ -108,11 +122,28 @@
         {/each}
 		<circle r="10" cx="{MARGIN + x*SEGMENT_LENGTH}" cy="{MARGIN + y*SEGMENT_LENGTH}" fill='black'/>
 	</svg>
-
-
 </div>
 
 <style>
+
+	.auto-resizable-iframe {
+		max-width: 720px;
+		margin: 0px auto;
+	}
+
+	.auto-resizable-iframe > div {
+		position: relative;
+		padding-bottom: 75%;
+		height: 0px;
+	}
+
+	.auto-resizable-iframe iframe {
+		position: absolute;
+		top: 0px;
+		left: 0px;
+		width: 100%;
+		height: 100%;
+	}
 
 	canvas {
 		display: block;
@@ -133,11 +164,17 @@
 	}
 
 	h1 {
+		font-size: 4vw;
 		text-align: center;
-		font-size: 2.8em;
+		/*font-size: 2.8em;*/
 		text-transform: uppercase;
-		font-weight: 700;
+		font-weight: 600;
 		margin: 0 0 0.5em 0;
+	}
+
+	p{
+		font-size: 4vw;
+		text-align: center;
 	}
 
 	@media (min-width: 480px) {
