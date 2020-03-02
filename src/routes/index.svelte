@@ -1,13 +1,13 @@
 <script>
-
 	import { onMount } from 'svelte';
+	import { fade, fly } from 'svelte/transition';
 	import { BitField } from '../util/bitfield';
 
 	const Dir = Object.freeze({
-		E: [1,0,2,1],
-		W: [-1,0,-2,1],
-		N: [0,-1,0,0.5],
-		S: [0,1,0,2]
+		E: [1,0,2,1,'E'],
+		W: [-1,0,-2,1,'W'],
+		N: [0,-1,0,0.5,'N'],
+		S: [0,1,0,2,'S']
 	});
 
 	const X_SIZE = 4;
@@ -28,6 +28,31 @@
 
 	function makeSegment(x, y, dir) {
 		return {fromX: x, fromY: y, toX: x + dir[0], toY: y + dir[1]};
+	}
+
+	let outs;
+
+	$: outs = possibleOuts(x, y);
+
+	function addIfPossible(outs, x, y, dir) {
+		if (x + dir[0] > X_SIZE || x + dir[0] < 0 || y + dir[1] > Y_SIZE || y + dir[1] < 0) return;
+		if (dir[0] !== 0) {
+			const i = idx(Math.min(x, x + dir[0]), y);
+			if (horizontalRoads.get(i)) return;
+		} else { // dir[1] !== 0
+			const i = idx(x, Math.min(y, y + dir[1]));
+			if (verticalRoads.get(i)) return;
+		}
+		outs.push(dir);
+	}
+
+	function possibleOuts(x, y) {
+		const outs = [];
+		addIfPossible(outs, x, y, Dir.E);
+		addIfPossible(outs, x, y, Dir.W);
+		addIfPossible(outs, x, y, Dir.S);
+		addIfPossible(outs, x, y, Dir.N);
+		return outs;
 	}
 
 	function addSegment(dir) {
@@ -110,8 +135,17 @@
 	</div>
 </div>
 
-<p>Use the arrow keys to solve the riddle.</p>
-<p>Tax: {tax} silver.</p>
+
+<p class="animated infinite bounce delay-2s">Use the arrow keys to solve the riddle.</p>
+<p in:fly="{{ y: 200, duration: 2000 }}" out:fade>Tax: {tax} silver.</p>
+
+<!--<p in:fly="{{ y: 200, duration: 2000 }}" out:fade>-->
+<!--    Flies in, fades out-->
+<!--</p>-->
+
+{#each outs as out}
+	<span>{out[4]} </span>
+{/each}
 
 <div class="svginside" style="max-width:480px">
 	<canvas width="{LENGTH}" height="{LENGTH}"></canvas>
