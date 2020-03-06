@@ -107,18 +107,12 @@
 	const SEGMENT_LENGTH = 100;
 	const LENGTH = X_SIZE * SEGMENT_LENGTH + 2 * MARGIN;
 
-    window.UnderpolishedChatSettings = {
-        id: 10,
-        token: 'oQXfa275QFb9dEyL'
-    };
-
 </script>
 
 <svelte:window on:keydown={handleKeydown}/>
 
 <svelte:head>
 	<title>The Penniless Pilgrim Riddle</title>
-    <script src="https://api.underpolished.com/js/chatwidget.js" async type="text/javascript"></script>
 </svelte:head>
 
 <h1>The Penniless Pilgrim Riddle</h1>
@@ -138,10 +132,6 @@
 
 <p class="animated infinite bounce delay-2s">Use the arrow keys to solve the riddle.</p>
 <p in:fly="{{ y: 200, duration: 2000 }}" out:fade>Tax: {tax} silver.</p>
-
-<!--<p in:fly="{{ y: 200, duration: 2000 }}" out:fade>-->
-<!--    Flies in, fades out-->
-<!--</p>-->
 
 {#each outs as out}
 	<span>{out[4]} </span>
