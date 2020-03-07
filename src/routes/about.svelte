@@ -1,3 +1,8 @@
+<script>
+	// import pl from 'tau-prolog';
+	// let session = pl.create();
+</script>
+
 <svelte:head>
 	<title>About</title>
 </svelte:head>
@@ -6,6 +11,4 @@
 
 <p>Empty about page for the time being</p>
 
-<script>
 
-</script>
