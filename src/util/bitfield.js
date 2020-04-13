@@ -36,5 +36,3 @@ export class BitField {
         }
     }
 }
-
-if (typeof module !== 'undefined') module.exports = BitField
