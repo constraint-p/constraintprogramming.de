@@ -51,6 +51,9 @@
 <nav>
 	<ul>
 		<li><a aria-current='{segment === undefined ? "page" : undefined}' href='.'>home</a></li>
+	<!--
+		<li><a aria-current='{segment === undefined ? "page" : undefined}' href='.'>home</a></li>
 		<li><a aria-current='{segment === "penniless-pilgrim-riddle" ? "page" : undefined}' href='penniless-pilgrim-riddle'>pilgrim</a></li>
+	-->
 	</ul>
 </nav>
