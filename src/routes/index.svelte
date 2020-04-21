@@ -117,21 +117,7 @@
 
 <h1>The Penniless Pilgrim Riddle</h1>
 
-<div class="auto-resizable-iframe">
-	<div>
-		<iframe
-			title="Penniless Pilgrim Riddle"
-			frameborder="0"
-			src="https://www.youtube-nocookie.com/embed/6sBB-gRhfjE"
-			allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-			allowfullscreen
-		/>
-	</div>
-</div>
-
-
-<p class="animated infinite bounce delay-2s">Use the arrow keys to solve the riddle.</p>
-<p in:fly="{{ y: 200, duration: 2000 }}" out:fade>Tax: {tax} silver.</p>
+<p class="animated infinite bounce delay-2s">Use the arrow keys to reach the goal with 0.0 silver owed as tax.</p>
 
 {#each outs as out}
 	<span>{out[4]} </span>
@@ -153,6 +139,20 @@
         {/each}
 		<circle r="10" cx="{MARGIN + x*SEGMENT_LENGTH}" cy="{MARGIN + y*SEGMENT_LENGTH}" fill='black'/>
 	</svg>
+</div>
+
+<p in:fly="{{ y: 200, duration: 2000 }}" out:fade>Tax: {tax} silver.</p>
+
+<div class="auto-resizable-iframe">
+	<div>
+		<iframe
+				title="Penniless Pilgrim Riddle"
+				frameborder="0"
+				src="https://www.youtube-nocookie.com/embed/6sBB-gRhfjE"
+				allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+				allowfullscreen
+		/>
+	</div>
 </div>
 
 <style>
@@ -204,7 +204,7 @@
 	}
 
 	p{
-		font-size: 4vw;
+		font-size: 2vw;
 		text-align: center;
 	}
 
