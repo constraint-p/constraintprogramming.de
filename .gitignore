@@ -5,3 +5,6 @@ yarn-error.log
 /cypress/screenshots/
 /__sapper__/
 .idea
+
+/firebase-debug.log
+/.firebase/hosting.*.cache
