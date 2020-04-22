@@ -3,7 +3,18 @@
 	import { fade, fly } from 'svelte/transition';
 	import { BitField } from '../util/bitfield';
 
-	const Dir = Object.freeze({
+  import Button from 'sveltestrap/src/Button.svelte'
+  import Toast from 'sveltestrap/src/Toast.svelte'
+  import ToastHeader from 'sveltestrap/src/ToastHeader.svelte'
+  import ToastBody from 'sveltestrap/src/ToastBody.svelte'
+
+  let isOpen = false;
+
+  function toggle() {
+    isOpen = !isOpen;
+  }
+
+  const Dir = Object.freeze({
 		E: [1,0,2,1,'E'],
 		W: [-1,0,-2,1,'W'],
 		N: [0,-1,0,0.5,'N'],
@@ -115,6 +126,10 @@
 	<title>The Penniless Pilgrim Riddle</title>
 </svelte:head>
 
+<!--<Button color="danger" on:click={handleClick}>-->
+<!--  Do Not Press-->
+<!--</Button>-->
+
 <h1>The Penniless Pilgrim Riddle</h1>
 
 <p class="animated infinite bounce delay-2s">Use the arrow keys to reach the goal with 0.0 silver owed as tax.</p>
@@ -122,6 +137,20 @@
 {#each outs as out}
 	<span>{out[4]} </span>
 {/each}
+
+<Button color="primary" on:click={toggle} class="mb-3">
+  Toggle Toast
+</Button>
+
+<Toast {isOpen}>
+  <ToastHeader toggle="{toggle}">Toast title</ToastHeader>
+  <ToastBody>
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit,
+    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
+    nisi ut aliquip ex ea commodo consequat.
+  </ToastBody>
+</Toast>
 
 <div class="svginside" style="max-width:480px">
 	<canvas width="{LENGTH}" height="{LENGTH}"></canvas>
@@ -157,61 +186,61 @@
 
 <style>
 
-	.auto-resizable-iframe {
-		max-width: 720px;
-		margin: 0px auto;
-	}
+	/*.auto-resizable-iframe {*/
+	/*	max-width: 720px;*/
+	/*	margin: 0px auto;*/
+	/*}*/
 
-	.auto-resizable-iframe > div {
-		position: relative;
-		padding-bottom: 75%;
-		height: 0px;
-	}
+	/*.auto-resizable-iframe > div {*/
+	/*	position: relative;*/
+	/*	padding-bottom: 75%;*/
+	/*	height: 0px;*/
+	/*}*/
 
-	.auto-resizable-iframe iframe {
-		position: absolute;
-		top: 0px;
-		left: 0px;
-		width: 100%;
-		height: 100%;
-	}
+	/*.auto-resizable-iframe iframe {*/
+	/*	position: absolute;*/
+	/*	top: 0px;*/
+	/*	left: 0px;*/
+	/*	width: 100%;*/
+	/*	height: 100%;*/
+	/*}*/
 
-	canvas {
-		display: block;
-		width: 100%;
-		visibility: hidden;
-	}
+	/*canvas {*/
+	/*	display: block;*/
+	/*	width: 100%;*/
+	/*	visibility: hidden;*/
+	/*}*/
 
-	.svginside {
-		position:relative;
-		margin-left:auto; margin-right: auto;
-	}
+	/*.svginside {*/
+	/*	position:relative;*/
+	/*	margin-left:auto; margin-right: auto;*/
+	/*}*/
 
-	.svginside svg {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-	}
+	/*.svginside svg {*/
+	/*	position: absolute;*/
+	/*	top: 0;*/
+	/*	left: 0;*/
+	/*	width: 100%;*/
+	/*}*/
 
-	h1 {
-		font-size: 4vw;
-		text-align: center;
-		/*font-size: 2.8em;*/
-		text-transform: uppercase;
-		font-weight: 600;
-		margin: 0 0 0.5em 0;
-	}
+	/*h1 {*/
+	/*	font-size: 4vw;*/
+	/*	text-align: center;*/
+	/*	!*font-size: 2.8em;*!*/
+	/*	text-transform: uppercase;*/
+	/*	font-weight: 600;*/
+	/*	margin: 0 0 0.5em 0;*/
+	/*}*/
 
-	p{
-		font-size: 2vw;
-		text-align: center;
-	}
+	/*p{*/
+	/*	font-size: 2vw;*/
+	/*	text-align: center;*/
+	/*}*/
 
-	@media (min-width: 480px) {
-		h1 {
-			font-size: 4em;
-		}
-	}
+	/*@media (min-width: 480px) {*/
+	/*	h1 {*/
+	/*		font-size: 4em;*/
+	/*	}*/
+	/*}*/
 
 </style>
