@@ -161,7 +161,7 @@
 </Toast>
 <Toast isOpen="{goalReached && !puzzleSolved}">
   <ToastHeader toggle="{startGame}">Close but no cigar</ToastHeader>
-  <ToastBody>You reached the goal, owing {tax} silver. Try again. It definitely is possible to reach it owing exactly 0.0 silver.</ToastBody>
+  <ToastBody>You reached the goal, owing {tax} silver. It is possible to reach it owing exactly 0.0 silver. Try again by pressing any key.</ToastBody>
 </Toast>
 <Toast isOpen="{puzzleSolved}">
   <ToastHeader toggle="{startGame}">Great Success!</ToastHeader>

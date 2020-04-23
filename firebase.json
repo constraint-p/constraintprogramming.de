@@ -1,6 +1,9 @@
 {
   "hosting": {
     "public": "__sapper__/export",
+    "predeploy": [
+      "npx sapper export"
+    ],
     "ignore": [
       "firebase.json",
       "**/.*",
