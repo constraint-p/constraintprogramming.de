@@ -8,10 +8,42 @@
   import ToastHeader from 'sveltestrap/src/ToastHeader.svelte'
   import ToastBody from 'sveltestrap/src/ToastBody.svelte'
 
-  let isOpen = false;
+  const X_SIZE = 4;
+  const Y_SIZE = 4;
 
-  function toggle() {
-    isOpen = !isOpen;
+  const horizontalRoads = new BitField((X_SIZE + 1)*(Y_SIZE+1));
+  const verticalRoads = new BitField((X_SIZE + 1)*(Y_SIZE+1));
+
+  let noWayOut,goalReached,puzzleSolved,gameOver;
+  let x = 0;
+  let y = 0;
+  let tax = 0.0;
+  let segments = [];
+  let outs;
+
+  $: goalReached = x == X_SIZE && y == Y_SIZE;
+  $: puzzleSolved = goalReached && tax == 0;
+  $: noWayOut = !puzzleSolved && !goalReached && outs.length == 0;
+  $: gameOver = goalReached || puzzleSolved || noWayOut;
+  $: outs = possibleOuts(x, y);
+
+  function idx(x, y) {
+    return y * (Y_SIZE+1) + x;
+  }
+
+  function startGame() {
+    x = 0;
+    y = 0;
+    tax = 0.0;
+    segments = [];
+    for (let i = 0; i <= X_SIZE; i++) {
+      for (let j = 0; j <= X_SIZE; j++) {
+        horizontalRoads.set(idx(i,j), false);
+        verticalRoads.set(idx(i,j), false);
+      }
+    }
+    addSegment(Dir.E);
+    addSegment(Dir.E);
   }
 
   const Dir = Object.freeze({
@@ -21,29 +53,9 @@
 		S: [0,1,0,2,'S']
 	});
 
-	const X_SIZE = 4;
-	const Y_SIZE = 4;
-
-	const horizontalRoads = new BitField((X_SIZE + 1)*(Y_SIZE+1));
-	const verticalRoads = new BitField((X_SIZE + 1)*(Y_SIZE+1));
-
-	function idx(x, y) {
-		return y * (Y_SIZE+1) + x;
-	}
-
-	let x = 0;
-	let y = 0;
-	let tax = 0.0;
-
-	let segments = [];
-
 	function makeSegment(x, y, dir) {
 		return {fromX: x, fromY: y, toX: x + dir[0], toY: y + dir[1]};
 	}
-
-	let outs;
-
-	$: outs = possibleOuts(x, y);
 
 	function addIfPossible(outs, x, y, dir) {
 		if (x + dir[0] > X_SIZE || x + dir[0] < 0 || y + dir[1] > Y_SIZE || y + dir[1] < 0) return;
@@ -58,12 +70,12 @@
 	}
 
 	function possibleOuts(x, y) {
-		const outs = [];
-		addIfPossible(outs, x, y, Dir.E);
-		addIfPossible(outs, x, y, Dir.W);
-		addIfPossible(outs, x, y, Dir.S);
-		addIfPossible(outs, x, y, Dir.N);
-		return outs;
+		const rewOuts = [];
+    addIfPossible(rewOuts, x, y, Dir.E);
+    addIfPossible(rewOuts, x, y, Dir.W);
+    addIfPossible(rewOuts, x, y, Dir.S);
+    addIfPossible(rewOuts, x, y, Dir.N);
+		return rewOuts;
 	}
 
 	function addSegment(dir) {
@@ -103,15 +115,24 @@
 	}
 
 	function handleKeydown(event) {
+    if (gameOver) {
+      console.log("Re-Starting game. ", event.key);
+      startGame();
+      return;
+    }
 		const dir = dirFrom(event);
 		if (dir !== undefined) {
 			addSegment(dir);
-		}
+		} else {
+      console.log(event.key);
+      // if (event.key == "Escape") {
+      //   if (isOpen) restart();
+      // }
+    }
 	}
 
 	onMount(async () => {
-		addSegment(Dir.E);
-		addSegment(Dir.E);
+    startGame();
 	});
 
 	const MARGIN = 15;
@@ -126,48 +147,39 @@
 	<title>The Penniless Pilgrim Riddle</title>
 </svelte:head>
 
-<!--<Button color="danger" on:click={handleClick}>-->
-<!--  Do Not Press-->
-<!--</Button>-->
-
 <h1>The Penniless Pilgrim Riddle</h1>
 
 <p class="animated infinite bounce delay-2s">Use the arrow keys to reach the goal with 0.0 silver owed as tax.</p>
 
-{#each outs as out}
-	<span>{out[4]} </span>
-{/each}
-
-<Button color="primary" on:click={toggle} class="mb-3">
-  Toggle Toast
-</Button>
-
-<Toast {isOpen}>
-  <ToastHeader toggle="{toggle}">Toast title</ToastHeader>
-  <ToastBody>
-    Lorem ipsum dolor sit amet, consectetur adipisicing elit,
-    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-    nisi ut aliquip ex ea commodo consequat.
-  </ToastBody>
+<Toast isOpen="{noWayOut}">
+  <ToastHeader toggle="{startGame}">No way out</ToastHeader>
+  <ToastBody>You cannot travel further from here, because you cannot use a road more than once. Try again</ToastBody>
+</Toast>
+<Toast isOpen="{goalReached && !puzzleSolved}">
+  <ToastHeader toggle="{startGame}">Close but no cigar</ToastHeader>
+  <ToastBody>You reached the goal, owing {tax} silver. Try again. It definitely is possible to reach it owing exactly 0 silver.</ToastBody>
+</Toast>
+<Toast isOpen="{puzzleSolved}">
+  <ToastHeader toggle="{startGame}">Great Success!</ToastHeader>
+  <ToastBody>You solved it. Congratulations!</ToastBody>
 </Toast>
 
 <div class="svginside" style="max-width:480px">
 	<canvas width="{LENGTH}" height="{LENGTH}"></canvas>
 	<svg height="100%" width="100%" viewBox="0 0 {LENGTH} {LENGTH}">
-		<circle r="15" cx="{MARGIN + X_SIZE * SEGMENT_LENGTH}" cy="{MARGIN + Y_SIZE * SEGMENT_LENGTH}" fill='gray'/>
-        {#each segments as s}
-			<line
-				x1="{MARGIN + s.fromX*SEGMENT_LENGTH}"
-				y1="{MARGIN + s.fromY*SEGMENT_LENGTH}"
-				x2="{MARGIN + s.toX*SEGMENT_LENGTH}"
-				y2="{MARGIN + s.toY*SEGMENT_LENGTH}"
-				stroke="orange"
-				stroke-width="5"
-			/>
-        {/each}
-		<circle r="10" cx="{MARGIN + x*SEGMENT_LENGTH}" cy="{MARGIN + y*SEGMENT_LENGTH}" fill='black'/>
-	</svg>
+    <circle r="15" cx="{MARGIN + X_SIZE * SEGMENT_LENGTH}" cy="{MARGIN + Y_SIZE * SEGMENT_LENGTH}" fill='gray'/>
+    {#each segments as s}
+      <line
+        x1="{MARGIN + s.fromX*SEGMENT_LENGTH}"
+        y1="{MARGIN + s.fromY*SEGMENT_LENGTH}"
+        x2="{MARGIN + s.toX*SEGMENT_LENGTH}"
+        y2="{MARGIN + s.toY*SEGMENT_LENGTH}"
+        stroke="orange"
+        stroke-width="5"
+      />
+    {/each}
+    <circle r="10" cx="{MARGIN + x*SEGMENT_LENGTH}" cy="{MARGIN + y*SEGMENT_LENGTH}" fill='black'/>
+  </svg>
 </div>
 
 <p in:fly="{{ y: 200, duration: 2000 }}" out:fade>Tax: {tax} silver.</p>
