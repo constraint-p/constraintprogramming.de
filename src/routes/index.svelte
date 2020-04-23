@@ -7,6 +7,7 @@
   import Toast from 'sveltestrap/src/Toast.svelte'
   import ToastHeader from 'sveltestrap/src/ToastHeader.svelte'
   import ToastBody from 'sveltestrap/src/ToastBody.svelte'
+  import Alert from 'sveltestrap/src/Alert.svelte'
 
   const X_SIZE = 4;
   const Y_SIZE = 4;
@@ -14,6 +15,7 @@
   const horizontalRoads = new BitField((X_SIZE + 1)*(Y_SIZE+1));
   const verticalRoads = new BitField((X_SIZE + 1)*(Y_SIZE+1));
 
+  let playerHasEngaged;
   let noWayOut,goalReached,puzzleSolved,gameOver;
   let x = 0;
   let y = 0;
@@ -27,9 +29,7 @@
   $: gameOver = goalReached || puzzleSolved || noWayOut;
   $: outs = possibleOuts(x, y);
 
-  function idx(x, y) {
-    return y * (Y_SIZE+1) + x;
-  }
+  const idx = (x, y) => y * (Y_SIZE + 1) + x;
 
   function startGame() {
     x = 0;
@@ -101,17 +101,17 @@
 	}
 
 	function dirFrom(event) {
-		switch (event.key) {
-			case "ArrowRight":
-				return Dir.E;
-			case "ArrowLeft":
-				return Dir.W;
-			case "ArrowUp":
-				return Dir.N;
-			case "ArrowDown":
-				return Dir.S;
-		}
-		return undefined;
+    switch (event.key) {
+      case "ArrowRight":
+        return Dir.E;
+      case "ArrowLeft":
+        return Dir.W;
+      case "ArrowUp":
+        return Dir.N;
+      case "ArrowDown":
+        return Dir.S;
+    }
+    return undefined;
 	}
 
 	function handleKeydown(event) {
@@ -122,6 +122,7 @@
     }
 		const dir = dirFrom(event);
 		if (dir !== undefined) {
+		  playerHasEngaged = true;
 			addSegment(dir);
 		} else {
       console.log(event.key);
@@ -149,15 +150,18 @@
 
 <h1>The Penniless Pilgrim Riddle</h1>
 
-<p class="animated infinite bounce delay-2s">Use the arrow keys to reach the goal with 0.0 silver owed as tax.</p>
-
+{#if !playerHasEngaged}
+  <Alert color="success">
+    <p style="margin-top: 2em" class="animated infinite bounce delay-2s">Use the arrow keys to reach the goal with 0.0 silver owed as tax.</p>
+  </Alert>
+{/if}
 <Toast isOpen="{noWayOut}">
   <ToastHeader toggle="{startGame}">No way out</ToastHeader>
-  <ToastBody>You cannot travel further from here, because you cannot use a road more than once. Try again</ToastBody>
+  <ToastBody>You cannot travel any further, because you cannot use a road more than once. Try again by pressing any key.</ToastBody>
 </Toast>
 <Toast isOpen="{goalReached && !puzzleSolved}">
   <ToastHeader toggle="{startGame}">Close but no cigar</ToastHeader>
-  <ToastBody>You reached the goal, owing {tax} silver. Try again. It definitely is possible to reach it owing exactly 0 silver.</ToastBody>
+  <ToastBody>You reached the goal, owing {tax} silver. Try again. It definitely is possible to reach it owing exactly 0.0 silver.</ToastBody>
 </Toast>
 <Toast isOpen="{puzzleSolved}">
   <ToastHeader toggle="{startGame}">Great Success!</ToastHeader>
@@ -175,7 +179,7 @@
         x2="{MARGIN + s.toX*SEGMENT_LENGTH}"
         y2="{MARGIN + s.toY*SEGMENT_LENGTH}"
         stroke="orange"
-        stroke-width="5"
+        stroke-width="6"
       />
     {/each}
     <circle r="10" cx="{MARGIN + x*SEGMENT_LENGTH}" cy="{MARGIN + y*SEGMENT_LENGTH}" fill='black'/>
@@ -198,42 +202,42 @@
 
 <style>
 
-	/*.auto-resizable-iframe {*/
-	/*	max-width: 720px;*/
-	/*	margin: 0px auto;*/
-	/*}*/
+	.auto-resizable-iframe {
+		max-width: 720px;
+		margin: 0px auto;
+	}
 
-	/*.auto-resizable-iframe > div {*/
-	/*	position: relative;*/
-	/*	padding-bottom: 75%;*/
-	/*	height: 0px;*/
-	/*}*/
+	.auto-resizable-iframe > div {
+		position: relative;
+		padding-bottom: 75%;
+		height: 0px;
+	}
 
-	/*.auto-resizable-iframe iframe {*/
-	/*	position: absolute;*/
-	/*	top: 0px;*/
-	/*	left: 0px;*/
-	/*	width: 100%;*/
-	/*	height: 100%;*/
-	/*}*/
+	.auto-resizable-iframe iframe {
+		position: absolute;
+		top: 0px;
+		left: 0px;
+		width: 100%;
+		height: 100%;
+	}
 
-	/*canvas {*/
-	/*	display: block;*/
-	/*	width: 100%;*/
-	/*	visibility: hidden;*/
-	/*}*/
+	canvas {
+		display: block;
+		width: 100%;
+		visibility: hidden;
+	}
 
-	/*.svginside {*/
-	/*	position:relative;*/
-	/*	margin-left:auto; margin-right: auto;*/
-	/*}*/
+	.svginside {
+		position:relative;
+		margin-left:auto; margin-right: auto;
+	}
 
-	/*.svginside svg {*/
-	/*	position: absolute;*/
-	/*	top: 0;*/
-	/*	left: 0;*/
-	/*	width: 100%;*/
-	/*}*/
+	.svginside svg {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+	}
 
 	/*h1 {*/
 	/*	font-size: 4vw;*/
