@@ -239,24 +239,4 @@
 		width: 100%;
 	}
 
-	/*h1 {*/
-	/*	font-size: 4vw;*/
-	/*	text-align: center;*/
-	/*	!*font-size: 2.8em;*!*/
-	/*	text-transform: uppercase;*/
-	/*	font-weight: 600;*/
-	/*	margin: 0 0 0.5em 0;*/
-	/*}*/
-
-	/*p{*/
-	/*	font-size: 2vw;*/
-	/*	text-align: center;*/
-	/*}*/
-
-	/*@media (min-width: 480px) {*/
-	/*	h1 {*/
-	/*		font-size: 4em;*/
-	/*	}*/
-	/*}*/
-
 </style>

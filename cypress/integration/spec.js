@@ -4,16 +4,27 @@ describe('Sapper template app', () => {
 	});
 
 	it('has the correct <h1>', () => {
-		cy.contains('h1', 'Great success!')
+		cy.contains('h1', 'The Penniless Pilgrim Riddle')
 	});
 
-	it('navigates to /about', () => {
-		cy.get('nav a').contains('about').click();
-		cy.url().should('include', '/about');
+	it('home navigates to /', () => {
+		cy.get('nav a').contains('home').click();
+		cy.url().should('include', '/');
 	});
 
-	it('navigates to /blog', () => {
-		cy.get('nav a').contains('blog').click();
-		cy.url().should('include', '/blog');
-	});
+  it('contains usage hint at the start', () => {
+    cy.contains('p', 'Use the arrow keys to reach the goal with 0.0 silver owed as tax.')
+  });
+
+  it('usage hint disappears when engaging with the puzzle', () => {
+    cy.contains('.infinite.bounce', 'Use the arrow keys to reach the goal with 0.0 silver owed as tax.')
+    cy.get('body').type('{downarrow}')
+    cy.get('.infinite.bounce').should('not.exist');
+  });
+
+  it('displays no-way-out when stuck', () => {
+    cy.get('body').type('{downarrow}{leftarrow}{uparrow}')
+    cy.contains('p', 'Use the arrow keys to reach the goal with 0.0 silver owed as tax.')
+  });
+
 });

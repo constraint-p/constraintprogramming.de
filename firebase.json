@@ -2,6 +2,7 @@
   "hosting": {
     "public": "__sapper__/export",
     "predeploy": [
+      "npm run test",
       "npx sapper export"
     ],
     "ignore": [
