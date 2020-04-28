@@ -22,6 +22,7 @@
   let tax = 0.0;
   let segments = [];
   let outs;
+  let taxOp = "";
 
   $: goalReached = x == X_SIZE && y == Y_SIZE;
   $: puzzleSolved = goalReached && tax == 0;
@@ -47,10 +48,10 @@
   }
 
   const Dir = Object.freeze({
-		E: [1,0,2,1,'E'],
-		W: [-1,0,-2,1,'W'],
-		N: [0,-1,0,0.5,'N'],
-		S: [0,1,0,2,'S']
+		E: [1,0,2,1,'E','+2'],
+		W: [-1,0,-2,1,'W','−2'],
+		N: [0,-1,0,0.5,'N','÷2'],
+		S: [0,1,0,2,'S','×2']
 	});
 
 	function makeSegment(x, y, dir) {
@@ -71,10 +72,9 @@
 
 	function possibleOuts(x, y) {
 		const rewOuts = [];
-    addIfPossible(rewOuts, x, y, Dir.E);
-    addIfPossible(rewOuts, x, y, Dir.W);
-    addIfPossible(rewOuts, x, y, Dir.S);
-    addIfPossible(rewOuts, x, y, Dir.N);
+    for (const dir of Object.values(Dir)) {
+      addIfPossible(rewOuts, x, y, dir);
+    }
 		return rewOuts;
 	}
 
@@ -98,6 +98,7 @@
 		segments = [...segments, s];
 		tax += dir[2];
 		tax *= dir[3];
+    taxOp = dir[5];
 	}
 
 	function dirFrom(event) {
@@ -126,9 +127,7 @@
 			addSegment(dir);
 		} else {
       console.log(event.key);
-      // if (event.key == "Escape") {
-      //   if (isOpen) restart();
-      // }
+      // if (event.key == "Escape") if (isOpen) restart();
     }
 	}
 
@@ -170,7 +169,28 @@
 
 <div class="svginside" style="max-width:480px">
 	<canvas width="{LENGTH}" height="{LENGTH}"></canvas>
-	<svg height="100%" width="100%" viewBox="0 0 {LENGTH} {LENGTH}">
+	<svg xmlns="http://www.w3.org/2000/svg" height="100%" width="100%" viewBox="0 0 {LENGTH} {LENGTH}">
+    <defs>
+      <style>
+        @import url("https://fonts.googleapis.com/css?family=Roboto:400,400i,700,700i");
+      </style>
+    </defs>
+
+    {#each {length: Y_SIZE+1} as _, y}
+      <line x1="{MARGIN}" y1="{MARGIN + y*SEGMENT_LENGTH}" x2="{MARGIN + Y_SIZE*SEGMENT_LENGTH}" y2="{MARGIN + y*SEGMENT_LENGTH}" stroke="lightgray" stroke-width="6"/>
+    {/each}
+    {#each {length: X_SIZE+1} as _, x}
+      <line x1="{MARGIN + x*SEGMENT_LENGTH}" y1="{MARGIN}" x2="{MARGIN + x*SEGMENT_LENGTH}" y2="{MARGIN + X_SIZE*SEGMENT_LENGTH}" stroke="lightgray" stroke-width="6"/>
+    {/each}
+
+    <circle cx="{MARGIN + SEGMENT_LENGTH/2}" cy="{MARGIN + SEGMENT_LENGTH/2}" r="{0.8*SEGMENT_LENGTH/2}" stroke="red" stroke-width="3" fill="none"/>
+    <text x="{MARGIN + SEGMENT_LENGTH/2}" y="{MARGIN + SEGMENT_LENGTH/2}"
+          font-family="Roboto" dominant-baseline="central" class="animated infinite bounce delay-2s"
+          text-anchor="middle" font-size="3em" stroke="blue">{taxOp}</text>
+    <text x="{MARGIN + SEGMENT_LENGTH + SEGMENT_LENGTH/2}" y="{MARGIN + SEGMENT_LENGTH/2}"
+          font-family="Roboto" dominant-baseline="central"
+          class="animated infinite bounce delay-2s"
+          text-anchor="middle" font-size="3em" stroke="blue">{tax}</text>
     <circle r="15" cx="{MARGIN + X_SIZE * SEGMENT_LENGTH}" cy="{MARGIN + Y_SIZE * SEGMENT_LENGTH}" fill='gray'/>
     {#each segments as s}
       <line
@@ -180,9 +200,9 @@
         y2="{MARGIN + s.toY*SEGMENT_LENGTH}"
         stroke="orange"
         stroke-width="6"
+        out:fade
       />
     {/each}
-    <circle r="10" cx="{MARGIN + x*SEGMENT_LENGTH}" cy="{MARGIN + y*SEGMENT_LENGTH}" fill='black'/>
   </svg>
 </div>
 
@@ -201,6 +221,8 @@
 </div>
 
 <style>
+
+  p,h1 {text-align: center}
 
 	.auto-resizable-iframe {
 		max-width: 720px;
