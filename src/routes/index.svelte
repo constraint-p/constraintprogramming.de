@@ -1,10 +1,10 @@
 <script>
-  import { fade, fly, slide } from 'svelte/transition';
-  import { flip } from 'svelte/animate';
-  import { quintOut } from 'svelte/easing';
-  import { crossfade } from 'svelte/transition';
-  import { onMount } from 'svelte';
-  import { BitField } from '../util/bitfield';
+  import {fade, fly, slide} from 'svelte/transition';
+  import {flip} from 'svelte/animate';
+  import {quintOut} from 'svelte/easing';
+  import {crossfade} from 'svelte/transition';
+  import {onMount} from 'svelte';
+  import {BitField} from '../util/bitfield';
   import Button from 'sveltestrap/src/Button.svelte'
   import Toast from 'sveltestrap/src/Toast.svelte'
   import ToastHeader from 'sveltestrap/src/ToastHeader.svelte'
@@ -33,11 +33,11 @@
   const X_SIZE = 4;
   const Y_SIZE = 4;
 
-  const horizontalRoads = new BitField((X_SIZE + 1)*(Y_SIZE+1));
-  const verticalRoads = new BitField((X_SIZE + 1)*(Y_SIZE+1));
+  const horizontalRoads = new BitField((X_SIZE + 1) * (Y_SIZE + 1));
+  const verticalRoads = new BitField((X_SIZE + 1) * (Y_SIZE + 1));
 
   let playerHasEngaged;
-  let noWayOut,goalReached,puzzleSolved,gameOver;
+  let noWayOut, goalReached, puzzleSolved, gameOver;
   let x = 0;
   let y = 0;
   let tax = 0.0;
@@ -63,8 +63,8 @@
     taxOps = [];
     for (let i = 0; i <= X_SIZE; i++) {
       for (let j = 0; j <= X_SIZE; j++) {
-        horizontalRoads.set(idx(i,j), false);
-        verticalRoads.set(idx(i,j), false);
+        horizontalRoads.set(idx(i, j), false);
+        verticalRoads.set(idx(i, j), false);
       }
     }
     addSegment(Dir.E);
@@ -72,16 +72,16 @@
   }
 
   function pushNewOp(arr, op) {
-    const result = arr.slice(0, Y_SIZE-1);
+    const result = arr.slice(0, Y_SIZE - 1);
     result.unshift(op);
     return result;
   }
 
   const Dir = Object.freeze({
-    E: [1,0,2,1,'E','+2'],
-    W: [-1,0,-2,1,'W','−2'],
-    N: [0,-1,0,0.5,'N','÷2'],
-    S: [0,1,0,2,'S','×2']
+    E: [ 1,  0,  2,   1, 'E', '+2'],
+    W: [-1,  0, -2,   1, 'W', '−2'],
+    N: [ 0, -1,  0, 0.5, 'N', '÷2'],
+    S: [ 0,  1,  0,   2, 'S', '×2']
   });
 
   function makeSegment(x, y, dir) {
@@ -255,7 +255,9 @@
 
 <style>
 
-  p,h1 {text-align: center}
+  p, h1 {
+    text-align: center
+  }
 
   .auto-resizable-iframe {
     max-width: 720px;
@@ -283,8 +285,9 @@
   }
 
   .svginside {
-    position:relative;
-    margin-left:auto; margin-right: auto;
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .svginside svg {
