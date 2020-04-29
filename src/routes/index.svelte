@@ -1,13 +1,34 @@
 <script>
-	import { onMount } from 'svelte';
-	import { fade, fly } from 'svelte/transition';
-	import { BitField } from '../util/bitfield';
-
+  import { fade, fly, slide } from 'svelte/transition';
+  import { flip } from 'svelte/animate';
+  import { quintOut } from 'svelte/easing';
+  import { crossfade } from 'svelte/transition';
+  import { onMount } from 'svelte';
+  import { BitField } from '../util/bitfield';
   import Button from 'sveltestrap/src/Button.svelte'
   import Toast from 'sveltestrap/src/Toast.svelte'
   import ToastHeader from 'sveltestrap/src/ToastHeader.svelte'
   import ToastBody from 'sveltestrap/src/ToastBody.svelte'
   import Alert from 'sveltestrap/src/Alert.svelte'
+
+
+  const [send, receive] = crossfade({
+    duration: d => Math.sqrt(d * 200),
+
+    fallback(node, params) {
+      const style = getComputedStyle(node);
+      const transform = style.transform === 'none' ? '' : style.transform;
+
+      return {
+        duration: 600,
+        easing: quintOut,
+        css: t => `
+					transform: ${transform} scale(${t});
+					opacity: ${t}
+				`
+      };
+    }
+  });
 
   const X_SIZE = 4;
   const Y_SIZE = 4;
@@ -22,7 +43,8 @@
   let tax = 0.0;
   let segments = [];
   let outs;
-  let taxOp = "";
+  let turn = 0;
+  let taxOps = [];
 
   $: goalReached = x == X_SIZE && y == Y_SIZE;
   $: puzzleSolved = goalReached && tax == 0;
@@ -35,8 +57,10 @@
   function startGame() {
     x = 0;
     y = 0;
+    turn = 0;
     tax = 0.0;
     segments = [];
+    taxOps = [];
     for (let i = 0; i <= X_SIZE; i++) {
       for (let j = 0; j <= X_SIZE; j++) {
         horizontalRoads.set(idx(i,j), false);
@@ -47,61 +71,68 @@
     addSegment(Dir.E);
   }
 
+  function pushNewOp(arr, op) {
+    const result = arr.slice(0, Y_SIZE-1);
+    result.unshift(op);
+    return result;
+  }
+
   const Dir = Object.freeze({
-		E: [1,0,2,1,'E','+2'],
-		W: [-1,0,-2,1,'W','−2'],
-		N: [0,-1,0,0.5,'N','÷2'],
-		S: [0,1,0,2,'S','×2']
-	});
+    E: [1,0,2,1,'E','+2'],
+    W: [-1,0,-2,1,'W','−2'],
+    N: [0,-1,0,0.5,'N','÷2'],
+    S: [0,1,0,2,'S','×2']
+  });
 
-	function makeSegment(x, y, dir) {
-		return {fromX: x, fromY: y, toX: x + dir[0], toY: y + dir[1]};
-	}
+  function makeSegment(x, y, dir) {
+    return {fromX: x, fromY: y, toX: x + dir[0], toY: y + dir[1]};
+  }
 
-	function addIfPossible(outs, x, y, dir) {
-		if (x + dir[0] > X_SIZE || x + dir[0] < 0 || y + dir[1] > Y_SIZE || y + dir[1] < 0) return;
-		if (dir[0] !== 0) {
-			const i = idx(Math.min(x, x + dir[0]), y);
-			if (horizontalRoads.get(i)) return;
-		} else { // dir[1] !== 0
-			const i = idx(x, Math.min(y, y + dir[1]));
-			if (verticalRoads.get(i)) return;
-		}
-		outs.push(dir);
-	}
+  function addIfPossible(outs, x, y, dir) {
+    if (x + dir[0] > X_SIZE || x + dir[0] < 0 || y + dir[1] > Y_SIZE || y + dir[1] < 0) return;
+    if (dir[0] !== 0) {
+      const i = idx(Math.min(x, x + dir[0]), y);
+      if (horizontalRoads.get(i)) return;
+    } else { // dir[1] !== 0
+      const i = idx(x, Math.min(y, y + dir[1]));
+      if (verticalRoads.get(i)) return;
+    }
+    outs.push(dir);
+  }
 
-	function possibleOuts(x, y) {
-		const rewOuts = [];
+  function possibleOuts(x, y) {
+    const rewOuts = [];
     for (const dir of Object.values(Dir)) {
       addIfPossible(rewOuts, x, y, dir);
     }
-		return rewOuts;
-	}
+    return rewOuts;
+  }
 
-	function addSegment(dir) {
-		let s = makeSegment(x, y, dir);
+  function addSegment(dir) {
+    let s = makeSegment(x, y, dir);
 
-		if (s.toX > X_SIZE || s.toX < 0 || s.toY > Y_SIZE || s.toY < 0) return;
+    if (s.toX > X_SIZE || s.toX < 0 || s.toY > Y_SIZE || s.toY < 0) return;
 
-		if (dir[0] !== 0) {
-			const i = idx(Math.min(x, x + dir[0]), y);
-			if (horizontalRoads.get(i)) return;
-			horizontalRoads.set(i);
-			x += dir[0];
-		}
-		if (dir[1] !== 0) {
-			const i = idx(x, Math.min(y, y + dir[1]));
-			if (verticalRoads.get(i)) return;
-			verticalRoads.set(i);
-			y += dir[1];
-		}
-		segments = [...segments, s];
-		tax += dir[2];
-		tax *= dir[3];
-    taxOp = dir[5];
-	}
+    if (dir[0] !== 0) {
+      const i = idx(Math.min(x, x + dir[0]), y);
+      if (horizontalRoads.get(i)) return;
+      horizontalRoads.set(i);
+      x += dir[0];
+    }
+    if (dir[1] !== 0) {
+      const i = idx(x, Math.min(y, y + dir[1]));
+      if (verticalRoads.get(i)) return;
+      verticalRoads.set(i);
+      y += dir[1];
+    }
+    segments = [...segments, s];
+    tax += dir[2];
+    tax *= dir[3];
+    taxOps = pushNewOp(taxOps, {id: turn, op: dir[5]});
+    turn = turn + 1;
+  }
 
-	function dirFrom(event) {
+  function dirFrom(event) {
     switch (event.key) {
       case "ArrowRight":
         return Dir.E;
@@ -113,38 +144,38 @@
         return Dir.S;
     }
     return undefined;
-	}
+  }
 
-	function handleKeydown(event) {
+  function handleKeydown(event) {
     if (gameOver) {
       console.log("Re-Starting game. ", event.key);
       startGame();
       return;
     }
-		const dir = dirFrom(event);
-		if (dir !== undefined) {
-		  playerHasEngaged = true;
-			addSegment(dir);
-		} else {
+    const dir = dirFrom(event);
+    if (dir !== undefined) {
+      playerHasEngaged = true;
+      addSegment(dir);
+    } else {
       console.log(event.key);
       // if (event.key == "Escape") if (isOpen) restart();
     }
-	}
+  }
 
-	onMount(async () => {
+  onMount(async () => {
     startGame();
-	});
+  });
 
-	const MARGIN = 15;
-	const SEGMENT_LENGTH = 100;
-	const LENGTH = X_SIZE * SEGMENT_LENGTH + 2 * MARGIN;
+  const MARGIN = 15;
+  const SEGMENT_LENGTH = 100;
+  const LENGTH = X_SIZE * SEGMENT_LENGTH + 2 * MARGIN;
 
 </script>
 
 <svelte:window on:keydown={handleKeydown}/>
 
 <svelte:head>
-	<title>The Penniless Pilgrim Riddle</title>
+  <title>The Penniless Pilgrim Riddle</title>
 </svelte:head>
 
 <h1>The Penniless Pilgrim Riddle</h1>
@@ -168,8 +199,8 @@
 </Toast>
 
 <div class="svginside" style="max-width:480px">
-	<canvas width="{LENGTH}" height="{LENGTH}"></canvas>
-	<svg xmlns="http://www.w3.org/2000/svg" height="100%" width="100%" viewBox="0 0 {LENGTH} {LENGTH}">
+  <canvas width="{LENGTH}" height="{LENGTH}"></canvas>
+  <svg xmlns="http://www.w3.org/2000/svg" height="100%" width="100%" viewBox="0 0 {LENGTH} {LENGTH}">
     <defs>
       <style>
         @import url("https://fonts.googleapis.com/css?family=Roboto:400,400i,700,700i");
@@ -184,81 +215,83 @@
     {/each}
 
     <circle cx="{MARGIN + SEGMENT_LENGTH/2}" cy="{MARGIN + SEGMENT_LENGTH/2}" r="{0.8*SEGMENT_LENGTH/2}" stroke="red" stroke-width="3" fill="none"/>
-    <text x="{MARGIN + SEGMENT_LENGTH/2}" y="{MARGIN + SEGMENT_LENGTH/2}"
-          font-family="Roboto" dominant-baseline="central" class="animated infinite bounce delay-2s"
-          text-anchor="middle" font-size="3em" stroke="blue">{taxOp}</text>
+
+    {#each taxOps as taxOp, i (taxOp.id)}
+
+      <text x="{MARGIN + SEGMENT_LENGTH/2}" y="{MARGIN + SEGMENT_LENGTH * i + SEGMENT_LENGTH/2}"
+            font-family="Roboto" dominant-baseline="central"
+            in:receive="{{key: taxOp.id}}" out:send="{{key: taxOp.id}}" animate:flip
+            text-anchor="middle" font-size="{3-i*0.7}em" fill="gold">{taxOp.op}</text>
+    {/each}
     <text x="{MARGIN + SEGMENT_LENGTH + SEGMENT_LENGTH/2}" y="{MARGIN + SEGMENT_LENGTH/2}"
           font-family="Roboto" dominant-baseline="central"
-          class="animated infinite bounce delay-2s"
           text-anchor="middle" font-size="3em" stroke="blue">{tax}</text>
     <circle r="15" cx="{MARGIN + X_SIZE * SEGMENT_LENGTH}" cy="{MARGIN + Y_SIZE * SEGMENT_LENGTH}" fill='gray'/>
     {#each segments as s}
       <line
-        x1="{MARGIN + s.fromX*SEGMENT_LENGTH}"
-        y1="{MARGIN + s.fromY*SEGMENT_LENGTH}"
-        x2="{MARGIN + s.toX*SEGMENT_LENGTH}"
-        y2="{MARGIN + s.toY*SEGMENT_LENGTH}"
-        stroke="orange"
-        stroke-width="6"
-        out:fade
+              x1="{MARGIN + s.fromX*SEGMENT_LENGTH}"
+              y1="{MARGIN + s.fromY*SEGMENT_LENGTH}"
+              x2="{MARGIN + s.toX*SEGMENT_LENGTH}"
+              y2="{MARGIN + s.toY*SEGMENT_LENGTH}"
+              stroke="orange"
+              stroke-width="6"
+              out:fade
       />
     {/each}
   </svg>
 </div>
 
-<p in:fly="{{ y: 200, duration: 2000 }}" out:fade>Tax: {tax} silver.</p>
-
 <div class="auto-resizable-iframe">
-	<div>
-		<iframe
-				title="Penniless Pilgrim Riddle"
-				frameborder="0"
-				src="https://www.youtube-nocookie.com/embed/6sBB-gRhfjE"
-				allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-				allowfullscreen
-		/>
-	</div>
+  <div>
+    <iframe
+            title="Penniless Pilgrim Riddle"
+            frameborder="0"
+            src="https://www.youtube-nocookie.com/embed/6sBB-gRhfjE"
+            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+    />
+  </div>
 </div>
 
 <style>
 
   p,h1 {text-align: center}
 
-	.auto-resizable-iframe {
-		max-width: 720px;
-		margin: 0px auto;
-	}
+  .auto-resizable-iframe {
+    max-width: 720px;
+    margin: 0px auto;
+  }
 
-	.auto-resizable-iframe > div {
-		position: relative;
-		padding-bottom: 75%;
-		height: 0px;
-	}
+  .auto-resizable-iframe > div {
+    position: relative;
+    padding-bottom: 75%;
+    height: 0px;
+  }
 
-	.auto-resizable-iframe iframe {
-		position: absolute;
-		top: 0px;
-		left: 0px;
-		width: 100%;
-		height: 100%;
-	}
+  .auto-resizable-iframe iframe {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+  }
 
-	canvas {
-		display: block;
-		width: 100%;
-		visibility: hidden;
-	}
+  canvas {
+    display: block;
+    width: 100%;
+    visibility: hidden;
+  }
 
-	.svginside {
-		position:relative;
-		margin-left:auto; margin-right: auto;
-	}
+  .svginside {
+    position:relative;
+    margin-left:auto; margin-right: auto;
+  }
 
-	.svginside svg {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-	}
+  .svginside svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
 
 </style>
