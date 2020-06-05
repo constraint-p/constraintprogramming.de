@@ -27,4 +27,8 @@ describe('Sapper template app', () => {
     cy.contains('p', 'Use the arrow keys to reach the goal with 0.0 silver owed as tax.')
   });
 
+  it('success displayed after solving the riddle', () => {
+    cy.get('body').type('{downarrow}{downarrow}{downarrow}{rightarrow}{rightarrow}{uparrow}{uparrow}{uparrow}{leftarrow}{downarrow}{leftarrow}{leftarrow}{leftarrow}{downarrow}{downarrow}{downarrow}{rightarrow}{rightarrow}{rightarrow}{rightarrow}')
+    cy.get('.toast-body').contains('You solved it. Congratulations!')
+  });
 });
