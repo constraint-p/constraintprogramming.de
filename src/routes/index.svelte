@@ -146,8 +146,22 @@
     return undefined;
   }
 
-  function nodeClicked(event) {
-    console.debug("clicked!");
+  function nodeClicked(clickedX,clickedY) {
+    console.log("clicked!",clickedX," ",clickedY);
+    if (clickedX == x + 1 && clickedY == y) {
+      walk(Dir.E);
+    } else if(clickedX == x - 1 && clickedY == y) {
+      walk(Dir.W);
+    } else if(clickedX == x && clickedY == y + 1) {
+      walk(Dir.S);
+    } else if(clickedX == x && clickedY == y - 1) {
+      walk(Dir.N);
+    }
+  }
+
+  function walk(dir) {
+    playerHasEngaged = true;
+    addSegment(dir);
   }
 
   function handleKeydown(event) {
@@ -158,8 +172,7 @@
     }
     const dir = dirFrom(event);
     if (dir !== undefined) {
-      playerHasEngaged = true;
-      addSegment(dir);
+      walk(dir);
     } else {
       console.log(event.key);
       // if (event.key == "Escape") if (isOpen) restart();
@@ -213,9 +226,9 @@
 
     {#each {length: Y_SIZE+1} as _, y}
       <line x1="{MARGIN}" y1="{MARGIN + y*SEGMENT_LENGTH}" x2="{MARGIN + Y_SIZE*SEGMENT_LENGTH}" y2="{MARGIN + y*SEGMENT_LENGTH}" stroke="lightgray" stroke-width="6"/>
-      {#each {length: X_SIZE} as _, x}
+      {#each {length: X_SIZE+1} as _, x}
         <circle cx="{MARGIN + x*SEGMENT_LENGTH}" cy="{MARGIN + y*SEGMENT_LENGTH}" r="{0.2*SEGMENT_LENGTH/2}" stroke="lightgrey" stroke-width="3" fill="lightgrey"/>
-        <circle cx="{MARGIN + x*SEGMENT_LENGTH}" cy="{MARGIN + y*SEGMENT_LENGTH}" r="{0.9*SEGMENT_LENGTH}" opacity="0" on:click={nodeClicked}/>
+        <circle cx="{MARGIN + x*SEGMENT_LENGTH}" cy="{MARGIN + y*SEGMENT_LENGTH}" r="{0.9*SEGMENT_LENGTH/2}" opacity="0.1" on:click={() => nodeClicked(x,y)}/>
       {/each}}
     {/each}
     {#each {length: X_SIZE+1} as _, x}
