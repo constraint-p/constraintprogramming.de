@@ -55,6 +55,7 @@
   const idx = (x, y) => y * (Y_SIZE + 1) + x;
 
   function startGame() {
+    console.log("[Re-] Starting game.");
     x = 0;
     y = 0;
     turn = 0;
@@ -166,7 +167,6 @@
 
   function handleKeydown(event) {
     if (gameOver) {
-      console.log("Re-Starting game. ", event.key);
       startGame();
       return;
     }
@@ -202,13 +202,13 @@
     <p style="margin-top: 2em" class="animated infinite bounce delay-2s">Use the arrow keys to reach the goal with 0.0 silver owed as tax.</p>
   </Alert>
 {/if}
-<Toast isOpen="{noWayOut}">
-  <ToastHeader toggle="{startGame}">No way out</ToastHeader>
-  <ToastBody>You cannot travel any further, because you cannot use a road more than once. Try again by pressing any key.</ToastBody>
+<Toast isOpen="{noWayOut}" >
+  <ToastHeader toggle="{startGame}" on:click={()=>startGame()}>No way out</ToastHeader>
+  <ToastBody on:click="{startGame}">You cannot travel any further, because you cannot use a road more than once. Try again.</ToastBody>
 </Toast>
 <Toast isOpen="{goalReached && !puzzleSolved}">
   <ToastHeader toggle="{startGame}">Close but no cigar</ToastHeader>
-  <ToastBody>You reached the goal, owing {tax} silver. It is possible to reach it owing exactly 0.0 silver. Try again by pressing any key.</ToastBody>
+  <ToastBody>You reached the goal, owing {tax} silver. It is possible to reach it owing exactly 0.0 silver. Try again.</ToastBody>
 </Toast>
 <Toast isOpen="{puzzleSolved}">
   <ToastHeader toggle="{startGame}">Great Success!</ToastHeader>
@@ -216,7 +216,7 @@
 </Toast>
 
 <div class="svginside" style="max-width:480px">
-  <canvas width="{LENGTH}" height="{LENGTH}"></canvas>
+  '<canvas width="{LENGTH}" height="{LENGTH}"></canvas>
   <svg xmlns="http://www.w3.org/2000/svg" height="100%" width="100%" viewBox="0 0 {LENGTH} {LENGTH}">
     <defs>
       <style>
@@ -228,7 +228,7 @@
       <line x1="{MARGIN}" y1="{MARGIN + y*SEGMENT_LENGTH}" x2="{MARGIN + Y_SIZE*SEGMENT_LENGTH}" y2="{MARGIN + y*SEGMENT_LENGTH}" stroke="lightgray" stroke-width="6"/>
       {#each {length: X_SIZE+1} as _, x}
         <circle cx="{MARGIN + x*SEGMENT_LENGTH}" cy="{MARGIN + y*SEGMENT_LENGTH}" r="{0.2*SEGMENT_LENGTH/2}" stroke="lightgrey" stroke-width="3" fill="lightgrey"/>
-        <circle cx="{MARGIN + x*SEGMENT_LENGTH}" cy="{MARGIN + y*SEGMENT_LENGTH}" r="{0.9*SEGMENT_LENGTH/2}" opacity="0.1" on:click={() => nodeClicked(x,y)}/>
+        <circle cx="{MARGIN + x*SEGMENT_LENGTH}" cy="{MARGIN + y*SEGMENT_LENGTH}" r="{0.9*SEGMENT_LENGTH/2}" opacity="0.01" on:click|capture={() => nodeClicked(x,y)}/>
       {/each}}
     {/each}
     {#each {length: X_SIZE+1} as _, x}
@@ -238,7 +238,6 @@
     <circle cx="{MARGIN + SEGMENT_LENGTH/2}" cy="{MARGIN + SEGMENT_LENGTH/2}" r="{0.8*SEGMENT_LENGTH/2}" stroke="red" stroke-width="3" fill="none"/>
 
     {#each taxOps as taxOp, i (taxOp.id)}
-
       <text x="{MARGIN + SEGMENT_LENGTH/2}" y="{MARGIN + SEGMENT_LENGTH * i + SEGMENT_LENGTH/2}"
             font-family="Roboto" dominant-baseline="central"
             in:receive="{{key: taxOp.id}}" out:send="{{key: taxOp.id}}" animate:flip
