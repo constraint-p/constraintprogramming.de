@@ -31,4 +31,5 @@ describe('Sapper template app', () => {
     cy.get('body').type('{downarrow}{downarrow}{downarrow}{rightarrow}{rightarrow}{uparrow}{uparrow}{uparrow}{leftarrow}{downarrow}{leftarrow}{leftarrow}{leftarrow}{downarrow}{downarrow}{downarrow}{rightarrow}{rightarrow}{rightarrow}{rightarrow}')
     cy.get('.toast-body').contains('You solved it. Congratulations!')
   });
+  
 });

@@ -146,6 +146,10 @@
     return undefined;
   }
 
+  function nodeClicked(event) {
+    console.debug("clicked!");
+  }
+
   function handleKeydown(event) {
     if (gameOver) {
       console.log("Re-Starting game. ", event.key);
@@ -209,6 +213,10 @@
 
     {#each {length: Y_SIZE+1} as _, y}
       <line x1="{MARGIN}" y1="{MARGIN + y*SEGMENT_LENGTH}" x2="{MARGIN + Y_SIZE*SEGMENT_LENGTH}" y2="{MARGIN + y*SEGMENT_LENGTH}" stroke="lightgray" stroke-width="6"/>
+      {#each {length: X_SIZE} as _, x}
+        <circle cx="{MARGIN + x*SEGMENT_LENGTH}" cy="{MARGIN + y*SEGMENT_LENGTH}" r="{0.2*SEGMENT_LENGTH/2}" stroke="lightgrey" stroke-width="3" fill="lightgrey"/>
+        <circle cx="{MARGIN + x*SEGMENT_LENGTH}" cy="{MARGIN + y*SEGMENT_LENGTH}" r="{0.9*SEGMENT_LENGTH}" opacity="0" on:click={nodeClicked}/>
+      {/each}}
     {/each}
     {#each {length: X_SIZE+1} as _, x}
       <line x1="{MARGIN + x*SEGMENT_LENGTH}" y1="{MARGIN}" x2="{MARGIN + x*SEGMENT_LENGTH}" y2="{MARGIN + X_SIZE*SEGMENT_LENGTH}" stroke="lightgray" stroke-width="6"/>
