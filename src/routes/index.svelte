@@ -36,21 +36,25 @@
   const horizontalRoads = new BitField((X_SIZE + 1) * (Y_SIZE + 1));
   const verticalRoads = new BitField((X_SIZE + 1) * (Y_SIZE + 1));
 
-  let playerHasEngaged;
-  let noWayOut, goalReached, puzzleSolved, gameOver;
-  let x = 0;
-  let y = 0;
-  let tax = 0.0;
-  let segments = [];
-  let outs;
-  let turn = 0;
-  let taxOps = [];
+    let playerHasEngaged;
+    let noWayOut, goalReached, puzzleSolved, gameOver;
+    let x = 0;
+    let y = 0;
+    let hoverX;
+    let hoverY;
+    let hoverSegments;
+    let tax = 0.0;
+    let segments = [];
+    let outs;
+    let turn = 0;
+    let taxOps = [];
 
-  $: goalReached = x == X_SIZE && y == Y_SIZE;
-  $: puzzleSolved = goalReached && tax == 0;
-  $: noWayOut = !puzzleSolved && !goalReached && outs.length == 0;
-  $: gameOver = goalReached || puzzleSolved || noWayOut;
-  $: outs = possibleOuts(x, y);
+    $: goalReached = x == X_SIZE && y == Y_SIZE;
+    $: puzzleSolved = goalReached && tax == 0;
+    $: noWayOut = !puzzleSolved && !goalReached && outs.length == 0;
+    $: gameOver = goalReached || puzzleSolved || noWayOut;
+    $: outs = possibleOuts(x, y);
+    $: hoverSegments = updateHoverSegments(x, y, hoverX, hoverY);
 
   const idx = (x, y) => y * (Y_SIZE + 1) + x;
 
@@ -147,8 +151,14 @@
     return undefined;
   }
 
+  function updateHoverSegments(x, y, hoverX, hoverY) {
+    const hoverSegments = [];
+
+
+  }
+
   function nodeClicked(clickedX,clickedY) {
-    console.log("clicked!",clickedX," ",clickedY);
+    console.log("clicked!", clickedX, " ", clickedY);
     if (clickedX == x + 1 && clickedY == y) {
       walk(Dir.E);
     } else if(clickedX == x - 1 && clickedY == y) {
@@ -228,7 +238,11 @@
       <line x1="{MARGIN}" y1="{MARGIN + y*SEGMENT_LENGTH}" x2="{MARGIN + Y_SIZE*SEGMENT_LENGTH}" y2="{MARGIN + y*SEGMENT_LENGTH}" stroke="lightgray" stroke-width="6"/>
       {#each {length: X_SIZE+1} as _, x}
         <circle cx="{MARGIN + x*SEGMENT_LENGTH}" cy="{MARGIN + y*SEGMENT_LENGTH}" r="{0.2*SEGMENT_LENGTH/2}" stroke="lightgrey" stroke-width="3" fill="lightgrey"/>
-        <circle cx="{MARGIN + x*SEGMENT_LENGTH}" cy="{MARGIN + y*SEGMENT_LENGTH}" r="{0.9*SEGMENT_LENGTH/2}" opacity="0.01" on:click|capture={() => nodeClicked(x,y)}/>
+        <rect x={MARGIN + (x-0.5)*SEGMENT_LENGTH} y={MARGIN+(y-0.5)*SEGMENT_LENGTH} width={SEGMENT_LENGTH*1} height={SEGMENT_LENGTH*1}
+            style="fill:blue;stroke:pink;stroke-width:5;fill-opacity:0.1;stroke-opacity:0.9"
+            on:click|capture={() => nodeClicked(x,y)}
+            on:hover|capture={() => {hoverX=x; hoverY=y;}}
+        />
       {/each}}
     {/each}
     {#each {length: X_SIZE+1} as _, x}
