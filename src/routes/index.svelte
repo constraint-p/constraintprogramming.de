@@ -151,14 +151,24 @@
     return undefined;
   }
 
-  function updateHoverSegments(x, y, hoverX, hoverY) {
+  function updateHoverSegments(x, y, hX, hY) {
+    // if (!hoverX || !hoverY) {
+    //   return;
+    // }
+    console.log("updateHoverSegments!", hX, " ", hY );
     const hoverSegments = [];
 
 
   }
 
+  function nodeHovered(clickedX,clickedY) {
+
+    console.log("node hovererd!", clickedX, clickedY);
+    hoverX = clickedX;
+    hoverY = clickedY;
+  }
+
   function nodeClicked(clickedX,clickedY) {
-    console.log("clicked!", clickedX, " ", clickedY);
     if (clickedX == x + 1 && clickedY == y) {
       walk(Dir.E);
     } else if(clickedX == x - 1 && clickedY == y) {
@@ -241,7 +251,7 @@
         <rect x={MARGIN + (x-0.5)*SEGMENT_LENGTH} y={MARGIN+(y-0.5)*SEGMENT_LENGTH} width={SEGMENT_LENGTH*1} height={SEGMENT_LENGTH*1}
             style="fill:blue;stroke:pink;stroke-width:5;fill-opacity:0.1;stroke-opacity:0.9"
             on:click|capture={() => nodeClicked(x,y)}
-            on:hover|capture={() => {hoverX=x; hoverY=y;}}
+            on:hover|capture={() => nodeHovered(x,y)}
         />
       {/each}}
     {/each}
