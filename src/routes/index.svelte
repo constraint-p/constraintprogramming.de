@@ -140,12 +140,16 @@
   function dirFrom(event) {
     switch (event.key) {
       case "ArrowRight":
+      case "l":
         return Dir.E;
       case "ArrowLeft":
+      case "h":
         return Dir.W;
       case "ArrowUp":
+      case "k":
         return Dir.N;
       case "ArrowDown":
+      case "j":
         return Dir.S;
     }
     return undefined;
@@ -153,12 +157,18 @@
 
   function updateHoverSegments(x, y, hX, hY) {
     if (hoverX === undefined || hoverY === undefined) {
+      hoverSegments = [];
       return;
     }
     console.log("updateHoverSegments!", hX, " ", hY );
-    const hoverSegments = [];
+    const hs = [];
 
 
+
+
+
+
+    hoverSegments = hs;
   }
 
   function nodeHovered(clickedX,clickedY) {
