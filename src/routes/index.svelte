@@ -152,9 +152,9 @@
   }
 
   function updateHoverSegments(x, y, hX, hY) {
-    // if (!hoverX || !hoverY) {
-    //   return;
-    // }
+    if (hoverX === undefined || hoverY === undefined) {
+      return;
+    }
     console.log("updateHoverSegments!", hX, " ", hY );
     const hoverSegments = [];
 
@@ -162,8 +162,6 @@
   }
 
   function nodeHovered(clickedX,clickedY) {
-
-    console.log("node hovererd!", clickedX, clickedY);
     hoverX = clickedX;
     hoverY = clickedY;
   }
@@ -249,9 +247,9 @@
       {#each {length: X_SIZE+1} as _, x}
         <circle cx="{MARGIN + x*SEGMENT_LENGTH}" cy="{MARGIN + y*SEGMENT_LENGTH}" r="{0.2*SEGMENT_LENGTH/2}" stroke="lightgrey" stroke-width="3" fill="lightgrey"/>
         <rect x={MARGIN + (x-0.5)*SEGMENT_LENGTH} y={MARGIN+(y-0.5)*SEGMENT_LENGTH} width={SEGMENT_LENGTH*1} height={SEGMENT_LENGTH*1}
-            style="fill:blue;stroke:pink;stroke-width:5;fill-opacity:0.1;stroke-opacity:0.9"
+            style="fill:blue;stroke:pink;stroke-width:0;fill-opacity:0;stroke-opacity:0"
             on:click|capture={() => nodeClicked(x,y)}
-            on:hover|capture={() => nodeHovered(x,y)}
+            on:mouseover|capture={() => nodeHovered(x,y)}
         />
       {/each}}
     {/each}
