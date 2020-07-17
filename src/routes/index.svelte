@@ -172,7 +172,7 @@ function updateHoverSegments(x, y, hX, hY) {
     } else if (hY < y && verticalRoads.get(i)) {
 
     } else {
-  i
+  iF
     }
 
 
