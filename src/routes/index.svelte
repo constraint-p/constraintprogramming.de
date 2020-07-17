@@ -42,7 +42,7 @@
     let y = 0;
     let hoverX;
     let hoverY;
-    let hoverSegments;
+    let hoverSegments = [];
     let tax = 0.0;
     let segments = [];
     let outs;
@@ -154,21 +154,43 @@
     }
     return undefined;
   }
-
-  function updateHoverSegments(x, y, hX, hY) {
+function updateHoverSegments(x, y, hX, hY) {
     if (hoverX === undefined || hoverY === undefined) {
-      hoverSegments = [];
-      return;
+      return [];
     }
     console.log("updateHoverSegments!", hX, " ", hY );
-    const hs = [];
+    let hs = [makeSegment(hX, hY, Dir.E)];
+
+    const i = idx(Math.min(hX), hY);
+    if (hX > x && horizontalRoads.get(i) ) {
+        hs = [...hs, makeSegment(hX, hY, Dir.W)]
+    } else if(hX < x && horizontalRoads.get(i)) {
+
+      hs = [...hs, makeSegment(hX, hY, Dir.W)]
+    } else if (hY > y && verticalRoads.get(i)) {
+
+    } else if (hY < y && verticalRoads.get(i)) {
+
+    } else {
+  i
+    }
+
+
+
+  if (dir[1] !== 0) {
+        const i = idx(x, Math.min(y, y + dir[1]));
+        if (verticalRoads.get(i)) {}return;
+        verticalRoads.set(i);
+        y += dir[1];
+      }
+      segments = [...segments, s];
+      if (horizontalRoads.get(i)) return;
 
 
 
 
 
-
-    hoverSegments = hs;
+    return hs;
   }
 
   function nodeHovered(clickedX,clickedY) {
@@ -287,6 +309,18 @@
               y2="{MARGIN + s.toY*SEGMENT_LENGTH}"
               stroke="orange"
               stroke-width="6"
+              out:fade
+      />
+    {/each}
+
+    {#each hoverSegments as s}
+      <line
+              x1="{MARGIN + s.fromX*SEGMENT_LENGTH}"
+              y1="{MARGIN + s.fromY*SEGMENT_LENGTH}"
+              x2="{MARGIN + s.toX*SEGMENT_LENGTH}"
+              y2="{MARGIN + s.toY*SEGMENT_LENGTH}"
+              stroke="black"
+              stroke-width="4"
               out:fade
       />
     {/each}
