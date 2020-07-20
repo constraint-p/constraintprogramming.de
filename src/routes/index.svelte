@@ -159,37 +159,26 @@ function updateHoverSegments(x, y, hX, hY) {
       return [];
     }
     console.log("updateHoverSegments!", hX, " ", hY );
-    let hs = [makeSegment(hX, hY, Dir.E)];
-
-    const i = idx(Math.min(hX), hY);
-    if (hX > x && horizontalRoads.get(i) ) {
+    let hs = [];
+    let go = true;
+    while(go) {
+      const i = idx(Math.min(hX), hY);
+      if (hX > x && !horizontalRoads.get(i) ) {
         hs = [...hs, makeSegment(hX, hY, Dir.W)]
-    } else if(hX < x && horizontalRoads.get(i)) {
-
-      hs = [...hs, makeSegment(hX, hY, Dir.W)]
-    } else if (hY > y && verticalRoads.get(i)) {
-
-    } else if (hY < y && verticalRoads.get(i)) {
-
-    } else {
-  iF
-    }
-
-
-
-  if (dir[1] !== 0) {
-        const i = idx(x, Math.min(y, y + dir[1]));
-        if (verticalRoads.get(i)) {}return;
-        verticalRoads.set(i);
-        y += dir[1];
+        hX--;
+      } else if(hX < x && !horizontalRoads.get(i)) {
+        hs = [...hs, makeSegment(hX, hY, Dir.E)]
+        hX++;
+      } else if (hY > y && !verticalRoads.get(i)) {
+        hs = [...hs, makeSegment(hX, hY, Dir.S)]
+        hY--;
+      } else if (hY < y && !verticalRoads.get(i)) {
+        hs = [...hs, makeSegment(hX, hY, Dir.N)]
+        hY++;
+      } else {
+        go = false;
       }
-      segments = [...segments, s];
-      if (horizontalRoads.get(i)) return;
-
-
-
-
-
+    }
     return hs;
   }
 
