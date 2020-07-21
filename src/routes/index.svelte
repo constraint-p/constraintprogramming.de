@@ -33,8 +33,8 @@
   const X_SIZE = 4;
   const Y_SIZE = 4;
 
-  const horizontalRoads = new BitField((X_SIZE + 1) * (Y_SIZE + 1));
-  const verticalRoads = new BitField((X_SIZE + 1) * (Y_SIZE + 1));
+  const horizontalRoads = new BitField(X_SIZE * (Y_SIZE+1) );
+  const verticalRoads = new BitField( (X_SIZE+1) * Y_SIZE);
 
     let playerHasEngaged;
     let noWayOut, goalReached, puzzleSolved, gameOver;
@@ -56,7 +56,8 @@
     $: outs = possibleOuts(x, y);
     $: hoverSegments = updateHoverSegments(x, y, hoverX, hoverY);
 
-  const idx = (x, y) => y * (Y_SIZE + 1) + x;
+  const idHor = (x, y) => y * (Y_SIZE + 1) + x;
+  const idVer = (x, y) => x * (X_SIZE + 1) + y;
 
   function startGame() {
     console.log("[Re-] Starting game.");
@@ -68,8 +69,8 @@
     taxOps = [];
     for (let i = 0; i <= X_SIZE; i++) {
       for (let j = 0; j <= X_SIZE; j++) {
-        horizontalRoads.set(idx(i, j), false);
-        verticalRoads.set(idx(i, j), false);
+        horizontalRoads.set(idHor(i, j), false);
+        verticalRoads.set(idVer(i, j), false);
       }
     }
     addSegment(Dir.E);
@@ -96,10 +97,10 @@
   function addIfPossible(outs, x, y, dir) {
     if (x + dir[0] > X_SIZE || x + dir[0] < 0 || y + dir[1] > Y_SIZE || y + dir[1] < 0) return;
     if (dir[0] !== 0) {
-      const i = idx(Math.min(x, x + dir[0]), y);
+      const i = idHor(x + dir[0], y);
       if (horizontalRoads.get(i)) return;
     } else { // dir[1] !== 0
-      const i = idx(x, Math.min(y, y + dir[1]));
+      const i = idVer(x, y + dir[1]);
       if (verticalRoads.get(i)) return;
     }
     outs.push(dir);
@@ -119,13 +120,13 @@
     if (s.toX > X_SIZE || s.toX < 0 || s.toY > Y_SIZE || s.toY < 0) return;
 
     if (dir[0] !== 0) {
-      const i = idx(Math.min(x, x + dir[0]), y);
+      const i = idHor(x + dir[0], y);
       if (horizontalRoads.get(i)) return;
       horizontalRoads.set(i);
       x += dir[0];
     }
     if (dir[1] !== 0) {
-      const i = idx(x, Math.min(y, y + dir[1]));
+      const i = idVer(x, y + dir[1]);
       if (verticalRoads.get(i)) return;
       verticalRoads.set(i);
       y += dir[1];
@@ -154,26 +155,30 @@
     }
     return undefined;
   }
-function updateHoverSegments(x, y, hX, hY) {
-    if (hoverX === undefined || hoverY === undefined) {
+function updateHoverSegments(x, y, _hX, _hY) {
+    if (_hX === undefined || _hY === undefined) {
       return [];
     }
+    let hX = _hX;
+    let hY = _hY;
     console.log("updateHoverSegments!", hX, " ", hY );
     let hs = [];
     let go = true;
     while(go) {
-      const i = idx(Math.min(hX), hY);
-      if (hX > x && !horizontalRoads.get(i) ) {
+      const iHor = idHor(hX, hY);
+      const iVer = idVer(hX, hY);
+      if (hX > x && !horizontalRoads.get(iHor) ) {
+
         hs = [...hs, makeSegment(hX, hY, Dir.W)]
         hX--;
-      } else if(hX < x && !horizontalRoads.get(i)) {
+      } else if(hX < x && !horizontalRoads.get(iHor)) {
         hs = [...hs, makeSegment(hX, hY, Dir.E)]
         hX++;
-      } else if (hY > y && !verticalRoads.get(i)) {
-        hs = [...hs, makeSegment(hX, hY, Dir.S)]
-        hY--;
-      } else if (hY < y && !verticalRoads.get(i)) {
+      } else if (hY > y && !verticalRoads.get(iVer)) {
         hs = [...hs, makeSegment(hX, hY, Dir.N)]
+        hY--;
+      } else if (hY < y && !verticalRoads.get(iVer)) {
+        hs = [...hs, makeSegment(hX, hY, Dir.S)]
         hY++;
       } else {
         go = false;
