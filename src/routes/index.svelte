@@ -36,25 +36,25 @@
   const horizontalRoads = new BitField(X_SIZE * (Y_SIZE+1) );
   const verticalRoads = new BitField( (X_SIZE+1) * Y_SIZE);
 
-    let playerHasEngaged;
-    let noWayOut, goalReached, puzzleSolved, gameOver;
-    let x = 0;
-    let y = 0;
-    let hoverX;
-    let hoverY;
-    let hoverSegments = [];
-    let tax = 0.0;
-    let segments = [];
-    let outs;
-    let turn = 0;
-    let taxOps = [];
+  let playerHasEngaged;
+  let noWayOut, goalReached, puzzleSolved, gameOver;
+  let x = 0;
+  let y = 0;
+  let hoverX;
+  let hoverY;
+  let hoverSegments = [];
+  let tax = 0.0;
+  let segments = [];
+  let outs;
+  let turn = 0;
+  let taxOps = [];
 
-    $: goalReached = x == X_SIZE && y == Y_SIZE;
-    $: puzzleSolved = goalReached && tax == 0;
-    $: noWayOut = !puzzleSolved && !goalReached && outs.length == 0;
-    $: gameOver = goalReached || puzzleSolved || noWayOut;
-    $: outs = possibleOuts(x, y);
-    $: hoverSegments = updateHoverSegments(x, y, hoverX, hoverY);
+  $: goalReached = x == X_SIZE && y == Y_SIZE;
+  $: puzzleSolved = goalReached && tax == 0;
+  $: noWayOut = !puzzleSolved && !goalReached && outs.length == 0;
+  $: gameOver = goalReached || puzzleSolved || noWayOut;
+  $: outs = possibleOuts(x, y);
+  $: hoverSegments = updateHoverSegments(x, y, hoverX, hoverY);
 
   const idHor = (x, y) => y * (Y_SIZE + 1) + x;
   const idVer = (x, y) => x * (X_SIZE + 1) + y;
@@ -67,11 +67,11 @@
     tax = 0.0;
     segments = [];
     taxOps = [];
-    for (let i = 0; i <= X_SIZE; i++) {
-      for (let j = 0; j <= X_SIZE; j++) {
-        horizontalRoads.set(idHor(i, j), false);
-        verticalRoads.set(idVer(i, j), false);
-      }
+    for (let i = 0; i < X_SIZE * (Y_SIZE+1); i++) {
+      horizontalRoads.set(i, false);
+    }
+    for (let i = 0; i < (X_SIZE+1) * Y_SIZE; i++) {
+      verticalRoads.set(i, false);
     }
     addSegment(Dir.E);
     addSegment(Dir.E);
@@ -84,10 +84,10 @@
   }
 
   const Dir = Object.freeze({
-    E: [ 1,  0,  2,   1, 'E', '+2'],
-    W: [-1,  0, -2,   1, 'W', '−2'],
-    N: [ 0, -1,  0, 0.5, 'N', '÷2'],
-    S: [ 0,  1,  0,   2, 'S', '×2']
+    E: [ 1,  0,  2,   1, 'E', '+2', 0],
+    W: [-1,  0, -2,   1, 'W', '−2', 1],
+    N: [ 0, -1,  0, 0.5, 'N', '÷2', 0],
+    S: [ 0,  1,  0,   2, 'S', '×2', 1]
   });
 
   function makeSegment(x, y, dir) {
@@ -97,10 +97,10 @@
   function addIfPossible(outs, x, y, dir) {
     if (x + dir[0] > X_SIZE || x + dir[0] < 0 || y + dir[1] > Y_SIZE || y + dir[1] < 0) return;
     if (dir[0] !== 0) {
-      const i = idHor(x + dir[0], y);
+      const i = idHor(x + dir[6], y);
       if (horizontalRoads.get(i)) return;
     } else { // dir[1] !== 0
-      const i = idVer(x, y + dir[1]);
+      const i = idVer(x, y + dir[6]);
       if (verticalRoads.get(i)) return;
     }
     outs.push(dir);
@@ -120,13 +120,13 @@
     if (s.toX > X_SIZE || s.toX < 0 || s.toY > Y_SIZE || s.toY < 0) return;
 
     if (dir[0] !== 0) {
-      const i = idHor(x + dir[0], y);
+      const i = idHor(x + dir[6], y);
       if (horizontalRoads.get(i)) return;
       horizontalRoads.set(i);
       x += dir[0];
     }
     if (dir[1] !== 0) {
-      const i = idVer(x, y + dir[1]);
+      const i = idVer(x, y + dir[6]);
       if (verticalRoads.get(i)) return;
       verticalRoads.set(i);
       y += dir[1];
@@ -167,7 +167,7 @@ function updateHoverSegments(x, y, _hX, _hY) {
     while(go) {
       const iHor = idHor(hX, hY);
       const iVer = idVer(hX, hY);
-      if (hX > x && !horizontalRoads.get(iHor) ) {
+      if (hX > x && !horizontalRoads.get(idHor(hX,hY)) ) {
 
         hs = [...hs, makeSegment(hX, hY, Dir.W)]
         hX--;
