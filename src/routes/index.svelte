@@ -33,8 +33,8 @@
   const X_SIZE = 4;
   const Y_SIZE = 4;
 
-  const horizontalRoads = new BitField(X_SIZE * (Y_SIZE+1) );
-  const verticalRoads = new BitField( (X_SIZE+1) * Y_SIZE);
+  const horizontalRoads = new BitField(X_SIZE * (Y_SIZE + 1));
+  const verticalRoads = new BitField((X_SIZE + 1) * Y_SIZE);
 
   let playerHasEngaged;
   let noWayOut, goalReached, puzzleSolved, gameOver;
@@ -67,10 +67,10 @@
     tax = 0.0;
     segments = [];
     taxOps = [];
-    for (let i = 0; i < X_SIZE * (Y_SIZE+1); i++) {
+    for (let i = 0; i < X_SIZE * (Y_SIZE + 1); i++) {
       horizontalRoads.set(i, false);
     }
-    for (let i = 0; i < (X_SIZE+1) * Y_SIZE; i++) {
+    for (let i = 0; i < (X_SIZE + 1) * Y_SIZE; i++) {
       verticalRoads.set(i, false);
     }
     addSegment(Dir.E);
@@ -84,10 +84,10 @@
   }
 
   const Dir = Object.freeze({
-    E: [ 1,  0,  2,   1, 'E', '+2', 0],
-    W: [-1,  0, -2,   1, 'W', '−2', 1],
-    N: [ 0, -1,  0, 0.5, 'N', '÷2', 0],
-    S: [ 0,  1,  0,   2, 'S', '×2', 1]
+    E: [1, 0, 2, 1, 'E', '+2', 0],
+    W: [-1, 0, -2, 1, 'W', '−2', 1],
+    N: [0, -1, 0, 0.5, 'N', '÷2', 1],
+    S: [0, 1, 0, 2, 'S', '×2', 0]
   });
 
   function makeSegment(x, y, dir) {
@@ -97,10 +97,10 @@
   function addIfPossible(outs, x, y, dir) {
     if (x + dir[0] > X_SIZE || x + dir[0] < 0 || y + dir[1] > Y_SIZE || y + dir[1] < 0) return;
     if (dir[0] !== 0) {
-      const i = idHor(x + dir[6], y);
+      const i = idHor(x - dir[6], y);
       if (horizontalRoads.get(i)) return;
     } else { // dir[1] !== 0
-      const i = idVer(x, y + dir[6]);
+      const i = idVer(x, y - dir[6]);
       if (verticalRoads.get(i)) return;
     }
     outs.push(dir);
@@ -120,13 +120,13 @@
     if (s.toX > X_SIZE || s.toX < 0 || s.toY > Y_SIZE || s.toY < 0) return;
 
     if (dir[0] !== 0) {
-      const i = idHor(x + dir[6], y);
+      const i = idHor(x - dir[6], y);
       if (horizontalRoads.get(i)) return;
       horizontalRoads.set(i);
       x += dir[0];
     }
     if (dir[1] !== 0) {
-      const i = idVer(x, y + dir[6]);
+      const i = idVer(x, y - dir[6]);
       if (verticalRoads.get(i)) return;
       verticalRoads.set(i);
       y += dir[1];
@@ -155,29 +155,30 @@
     }
     return undefined;
   }
-function updateHoverSegments(x, y, _hX, _hY) {
+
+  function updateHoverSegments(x, y, _hX, _hY) {
     if (_hX === undefined || _hY === undefined) {
       return [];
     }
     let hX = _hX;
     let hY = _hY;
-    console.log("updateHoverSegments!", hX, " ", hY );
+    console.log("updateHoverSegments!", hX, " ", hY);
     let hs = [];
     let go = true;
-    while(go) {
-      const iHor = idHor(hX, hY);
-      const iVer = idVer(hX, hY);
-      if (hX > x && !horizontalRoads.get(idHor(hX,hY)) ) {
+    while (go) {
+      // const iHor = idHor(hX, hY);
+      // const iVer = idVer(hX, hY);
+      if (hX > x && !horizontalRoads.get(idHor(hX - 1, hY))) {
 
         hs = [...hs, makeSegment(hX, hY, Dir.W)]
         hX--;
-      } else if(hX < x && !horizontalRoads.get(iHor)) {
+      } else if (hX < x && !horizontalRoads.get(idHor(hX, hY))) {
         hs = [...hs, makeSegment(hX, hY, Dir.E)]
         hX++;
-      } else if (hY > y && !verticalRoads.get(iVer)) {
+      } else if (hY > y && !verticalRoads.get(idVer(hX, hY - 1))) {
         hs = [...hs, makeSegment(hX, hY, Dir.N)]
         hY--;
-      } else if (hY < y && !verticalRoads.get(iVer)) {
+      } else if (hY < y && !verticalRoads.get(idVer(hX, hY))) {
         hs = [...hs, makeSegment(hX, hY, Dir.S)]
         hY++;
       } else {
@@ -187,19 +188,19 @@ function updateHoverSegments(x, y, _hX, _hY) {
     return hs;
   }
 
-  function nodeHovered(clickedX,clickedY) {
+  function nodeHovered(clickedX, clickedY) {
     hoverX = clickedX;
     hoverY = clickedY;
   }
 
-  function nodeClicked(clickedX,clickedY) {
+  function nodeClicked(clickedX, clickedY) {
     if (clickedX == x + 1 && clickedY == y) {
       walk(Dir.E);
-    } else if(clickedX == x - 1 && clickedY == y) {
+    } else if (clickedX == x - 1 && clickedY == y) {
       walk(Dir.W);
-    } else if(clickedX == x && clickedY == y + 1) {
+    } else if (clickedX == x && clickedY == y + 1) {
       walk(Dir.S);
-    } else if(clickedX == x && clickedY == y - 1) {
+    } else if (clickedX == x && clickedY == y - 1) {
       walk(Dir.N);
     }
   }
@@ -243,16 +244,20 @@ function updateHoverSegments(x, y, _hX, _hY) {
 
 {#if !playerHasEngaged}
   <Alert color="success">
-    <p style="margin-top: 2em" class="animated infinite bounce delay-2s">Use the arrow keys to reach the goal with 0.0 silver owed as tax.</p>
+    <p style="margin-top: 2em" class="animated infinite bounce delay-2s">Use the arrow keys to reach the goal with 0.0
+      silver owed as tax.</p>
   </Alert>
 {/if}
-<Toast isOpen="{noWayOut}" >
+<Toast isOpen="{noWayOut}">
   <ToastHeader toggle="{startGame}" on:click={()=>startGame()}>No way out</ToastHeader>
-  <ToastBody on:click="{startGame}">You cannot travel any further, because you cannot use a road more than once. Try again.</ToastBody>
+  <ToastBody on:click="{startGame}">You cannot travel any further, because you cannot use a road more than once. Try
+    again.
+  </ToastBody>
 </Toast>
 <Toast isOpen="{goalReached && !puzzleSolved}">
   <ToastHeader toggle="{startGame}">Close but no cigar</ToastHeader>
-  <ToastBody>You reached the goal, owing {tax} silver. It is possible to reach it owing exactly 0.0 silver. Try again.</ToastBody>
+  <ToastBody>You reached the goal, owing {tax} silver. It is possible to reach it owing exactly 0.0 silver. Try again.
+  </ToastBody>
 </Toast>
 <Toast isOpen="{puzzleSolved}">
   <ToastHeader toggle="{startGame}">Great Success!</ToastHeader>
@@ -260,7 +265,8 @@ function updateHoverSegments(x, y, _hX, _hY) {
 </Toast>
 
 <div class="svginside" style="max-width:480px">
-  '<canvas width="{LENGTH}" height="{LENGTH}"></canvas>
+  '
+  <canvas width="{LENGTH}" height="{LENGTH}"></canvas>
   <svg xmlns="http://www.w3.org/2000/svg" height="100%" width="100%" viewBox="0 0 {LENGTH} {LENGTH}">
     <defs>
       <style>
@@ -269,21 +275,26 @@ function updateHoverSegments(x, y, _hX, _hY) {
     </defs>
 
     {#each {length: Y_SIZE+1} as _, y}
-      <line x1="{MARGIN}" y1="{MARGIN + y*SEGMENT_LENGTH}" x2="{MARGIN + Y_SIZE*SEGMENT_LENGTH}" y2="{MARGIN + y*SEGMENT_LENGTH}" stroke="lightgray" stroke-width="6"/>
+      <line x1="{MARGIN}" y1="{MARGIN + y*SEGMENT_LENGTH}" x2="{MARGIN + Y_SIZE*SEGMENT_LENGTH}"
+            y2="{MARGIN + y*SEGMENT_LENGTH}" stroke="lightgray" stroke-width="6"/>
       {#each {length: X_SIZE+1} as _, x}
-        <circle cx="{MARGIN + x*SEGMENT_LENGTH}" cy="{MARGIN + y*SEGMENT_LENGTH}" r="{0.2*SEGMENT_LENGTH/2}" stroke="lightgrey" stroke-width="3" fill="lightgrey"/>
-        <rect x={MARGIN + (x-0.5)*SEGMENT_LENGTH} y={MARGIN+(y-0.5)*SEGMENT_LENGTH} width={SEGMENT_LENGTH*1} height={SEGMENT_LENGTH*1}
-            style="fill:blue;stroke:pink;stroke-width:0;fill-opacity:0;stroke-opacity:0"
-            on:click|capture={() => nodeClicked(x,y)}
-            on:mouseover|capture={() => nodeHovered(x,y)}
+        <circle cx="{MARGIN + x*SEGMENT_LENGTH}" cy="{MARGIN + y*SEGMENT_LENGTH}" r="{0.2*SEGMENT_LENGTH/2}"
+                stroke="lightgrey" stroke-width="3" fill="lightgrey"/>
+        <rect x={MARGIN + (x-0.5)*SEGMENT_LENGTH} y={MARGIN+(y-0.5)*SEGMENT_LENGTH} width={SEGMENT_LENGTH*1}
+              height={SEGMENT_LENGTH*1}
+              style="fill:blue;stroke:pink;stroke-width:0;fill-opacity:0;stroke-opacity:0"
+              on:click|capture={() => nodeClicked(x,y)}
+              on:mouseover|capture={() => nodeHovered(x,y)}
         />
       {/each}}
     {/each}
     {#each {length: X_SIZE+1} as _, x}
-      <line x1="{MARGIN + x*SEGMENT_LENGTH}" y1="{MARGIN}" x2="{MARGIN + x*SEGMENT_LENGTH}" y2="{MARGIN + X_SIZE*SEGMENT_LENGTH}" stroke="lightgray" stroke-width="6"/>
+      <line x1="{MARGIN + x*SEGMENT_LENGTH}" y1="{MARGIN}" x2="{MARGIN + x*SEGMENT_LENGTH}"
+            y2="{MARGIN + X_SIZE*SEGMENT_LENGTH}" stroke="lightgray" stroke-width="6"/>
     {/each}
 
-    <circle cx="{MARGIN + SEGMENT_LENGTH/2}" cy="{MARGIN + SEGMENT_LENGTH/2}" r="{0.8*SEGMENT_LENGTH/2}" stroke="red" stroke-width="3" fill="none"/>
+    <circle cx="{MARGIN + SEGMENT_LENGTH/2}" cy="{MARGIN + SEGMENT_LENGTH/2}" r="{0.8*SEGMENT_LENGTH/2}" stroke="red"
+            stroke-width="3" fill="none"/>
 
     {#each taxOps as taxOp, i (taxOp.id)}
       <text x="{MARGIN + SEGMENT_LENGTH/2}" y="{MARGIN + SEGMENT_LENGTH * i + SEGMENT_LENGTH/2}"
