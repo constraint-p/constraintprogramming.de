@@ -56,8 +56,8 @@
   $: outs = possibleOuts(x, y);
   $: hoverSegments = updateHoverSegments(x, y, hoverX, hoverY);
 
-  const idHor = (x, y) => y * (Y_SIZE + 1) + x;
-  const idVer = (x, y) => x * (X_SIZE + 1) + y;
+  const idHor = (x, y) => y * (Y_SIZE - 1) + x;
+  const idVer = (x, y) => x * (X_SIZE - 1) + y;
 
   function startGame() {
     console.log("[Re-] Starting game.");
@@ -67,10 +67,10 @@
     tax = 0.0;
     segments = [];
     taxOps = [];
-    for (let i = 0; i < X_SIZE * (Y_SIZE + 1); i++) {
+    for (let i = 0; i < X_SIZE * (Y_SIZE - 1); i++) {
       horizontalRoads.set(i, false);
     }
-    for (let i = 0; i < (X_SIZE + 1) * Y_SIZE; i++) {
+    for (let i = 0; i < (X_SIZE - 1) * Y_SIZE; i++) {
       verticalRoads.set(i, false);
     }
     addSegment(Dir.E);
@@ -169,7 +169,6 @@
       // const iHor = idHor(hX, hY);
       // const iVer = idVer(hX, hY);
       if (hX > x && !horizontalRoads.get(idHor(hX - 1, hY))) {
-
         hs = [...hs, makeSegment(hX, hY, Dir.W)]
         hX--;
       } else if (hX < x && !horizontalRoads.get(idHor(hX, hY))) {
