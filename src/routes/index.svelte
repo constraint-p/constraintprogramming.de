@@ -140,17 +140,13 @@
 
   function dirFrom(event) {
     switch (event.key) {
-      case "ArrowRight":
-      case "l":
+      case "ArrowRight", "l":
         return Dir.E;
-      case "ArrowLeft":
-      case "h":
+      case "ArrowLeft", "h":
         return Dir.W;
-      case "ArrowUp":
-      case "k":
+      case "ArrowUp", "k":
         return Dir.N;
-      case "ArrowDown":
-      case "j":
+      case "ArrowDown", "j":
         return Dir.S;
     }
     return undefined;
@@ -166,8 +162,6 @@
     let hs = [];
     let go = true;
     while (go) {
-      // const iHor = idHor(hX, hY);
-      // const iVer = idVer(hX, hY);
       if (hX > x && !horizontalRoads.get(idHor(hX - 1, hY))) {
         hs = [...hs, makeSegment(hX, hY, Dir.W)]
         hX--;
