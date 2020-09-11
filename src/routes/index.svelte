@@ -1,16 +1,12 @@
 <script>
-  import {fade, fly, slide} from 'svelte/transition';
-  import {flip} from 'svelte/animate';
   import {quintOut} from 'svelte/easing';
   import {crossfade} from 'svelte/transition';
   import {onMount} from 'svelte';
   import {BitField} from '../util/bitfield';
-  import Button from 'sveltestrap/src/Button.svelte'
   import Toast from 'sveltestrap/src/Toast.svelte'
   import ToastHeader from 'sveltestrap/src/ToastHeader.svelte'
   import ToastBody from 'sveltestrap/src/ToastBody.svelte'
   import Alert from 'sveltestrap/src/Alert.svelte'
-
 
   const [send, receive] = crossfade({
     duration: d => Math.sqrt(d * 200),
